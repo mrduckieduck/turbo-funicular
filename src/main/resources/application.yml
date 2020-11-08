@@ -1,3 +1,6 @@
 micronaut:
   application:
     name: turboFunicular
+
+micronaut.router.static-resources.static.paths:
+  - classpath:/static
