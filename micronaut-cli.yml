@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: turbo.funicular
+testFramework: spock
+sourceLanguage: java
+buildTool: gradle
+features: [annotation-api, app-name, graalvm, gradle, http-client, java, java-application, logback, netty-server, postgres, readme, shade, spock, testcontainers, views-thymeleaf, yaml]
