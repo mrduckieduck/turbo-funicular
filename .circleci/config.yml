@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  tests:
     paralellism: 2
     docker:
       - image: circleci/openjdk:11-jdk
@@ -22,8 +22,6 @@ jobs:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
-workflows:
-  version: 2
-  workflow:
-    jobs:
-      - build
+
+      - store_test_results:
+          path: build/test-results/test
