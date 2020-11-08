@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  tests:
+  build:
     paralellism: 2
     docker:
       - image: circleci/openjdk:11-jdk
@@ -25,3 +25,9 @@ jobs:
 
       - store_test_results:
           path: build/test-results/test
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - build
