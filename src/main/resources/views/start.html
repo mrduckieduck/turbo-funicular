@@ -5,8 +5,23 @@
 </head>
 <body>
 <section>
-    <h1 th:if="${loggedIn}">username: <span th:text="${username}"></span></h1>
-    <h1 th:unless="${loggedIn}">You are not logged in</h1>
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                <div class="col s12">This div is 12-columns wide on all screen sizes</div>
+                <div class="col s6">6-columns (one-half)</div>
+                <div class="col s6">6-columns (one-half)</div>
+            </div>
+            <div class="row">
+                <div class="col s3">
+                    <!-- Grey navigation panel -->
+                </div>
+                <div class="col s9">
+                    <!-- Teal page content  -->
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 </body>
 </html>

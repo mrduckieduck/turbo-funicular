@@ -12,23 +12,27 @@
     <link href="/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
 </head>
 <body>
-<nav class="white" role="navigation">
-    <div class="nav-wrapper container">
-        <a id="logo-container" href="#" class="brand-logo">Funicular</a>
-        <ul class="right hide-on-med-and-down">
-            <li><a href="https://github.com/mrduckieduck/turbo-funicular">GitHub</a></li>
-        </ul>
+<header>
+    <nav class="white" role="navigation">
+        <div class="nav-wrapper container">
+            <a id="logo-container" href="/" class="brand-logo">Funicular</a>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="https://github.com/mrduckieduck/turbo-funicular">GitHub</a></li>
+            </ul>
 
-        <ul id="nav-mobile" class="sidenav">
-            <li><a href="https://github.com/mrduckieduck/turbo-funicular">GitHub</a></li>
-        </ul>
-        <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <ul id="nav-mobile" class="sidenav">
+                <li><a href="https://github.com/mrduckieduck/turbo-funicular">GitHub</a></li>
+            </ul>
+            <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <div th:replace="${content}">
+        <p>Layout content</p>
     </div>
-</nav>
-
-<div th:replace="${content}">
-    <p>Layout content</p>
-</div>
+</main>
 
 <footer class="page-footer teal">
     <div class="container">
