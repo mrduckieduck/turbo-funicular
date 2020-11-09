@@ -7,6 +7,7 @@ jobs:
     working_directory: ~/repo
     environment:
       JVM_OPTS: -Xmx3200m
+      TERM: dumb
       GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
     steps:
       - checkout
@@ -17,17 +18,12 @@ jobs:
       - run:
           name: Run tests
           command: gradle test
-
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle" }}
-
+      - store_artifacts:
+          path: build/reports
+          destination: reports
       - store_test_results:
           path: build/test-results/test
-
-workflows:
-  version: 2
-  workflow:
-    jobs:
-      - build
