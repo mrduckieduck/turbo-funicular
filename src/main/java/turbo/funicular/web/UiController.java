@@ -14,4 +14,10 @@ public class UiController {
     public HttpResponse<Map> index() {
         return HttpResponse.ok(Map.of());
     }
+
+    @View("start")
+    @Get("/getting-started")
+    public HttpResponse<Map> start() {
+        return HttpResponse.ok(Map.of());
+    }
 }
