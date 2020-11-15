@@ -11,8 +11,6 @@ jobs:
       GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
