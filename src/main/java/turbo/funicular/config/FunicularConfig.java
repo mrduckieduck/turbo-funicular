@@ -11,4 +11,9 @@ public class FunicularConfig {
     public MessageSource messageSource() {
         return new ResourceBundleMessageSource("i18n.messages");
     }
+
+    @Bean
+    public MessageSource.MessageContext messageContext() {
+        return MessageSource.MessageContext.DEFAULT;
+    }
 }

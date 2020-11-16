@@ -8,8 +8,9 @@ import turbo.funicular.web.UserCommand;
 
 @Mapper
 public interface UsersMapper {
-    UsersMapper INSTANCE = Mappers.getMapper(UsersMapper.class);
+    UsersMapper USERS_MAPPER = Mappers.getMapper(UsersMapper.class);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "publicProfile", ignore = true)
     User commandToEntity(UserCommand command);
 
