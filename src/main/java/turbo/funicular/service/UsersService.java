@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import turbo.funicular.entity.User;
 import turbo.funicular.entity.UserRepository;
+import turbo.funicular.service.exceptions.DuplicatedEntityException;
 import turbo.funicular.web.UserCommand;
 
 import javax.inject.Singleton;
@@ -23,6 +24,12 @@ public class UsersService {
 
     public Optional<User> addUser(@NotNull UserCommand command) {
         validationService.validate(command);
+
+        Optional<User> existingUser = userRepository.findUser(command.getLogin(), command.getGhId());
+
+        existingUser.ifPresent(user -> {
+            throw new DuplicatedEntityException("User", command.getLogin() + ", " + command.getGhId());
+        });
 
         User user = USERS_MAPPER.commandToEntity(command);
         validationService.validate(user);
