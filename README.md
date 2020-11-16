@@ -1,5 +1,7 @@
 # turbo-funicular
 
+[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/circleci/circleci-docs)
+[![codecov](https://codecov.io/gh/mrduckieduck/turbo-funicular/branch/main/graph/badge.svg)](https://codecov.io/gh/mrduckieduck/turbo-funicular)
 
 ## Local development environment
 
