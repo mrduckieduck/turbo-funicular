@@ -4,10 +4,11 @@ jobs:
     #paralellism: 2
     docker:
       - image: circleci/openjdk:11-jdk
-      - image: postgres:9.4.1
+      - image: postgres:13.1-alpine
         environment:
-          POSTGRES_USER: funicular
-          POSTGRES_DB: secret_pwd
+          POSTGRES_USER: user
+          POSTGRES_DB: funicular
+          POSTGRES_PASSWORD: secret
     working_directory: ~/repo
     environment:
       JVM_OPTS: -Xmx3200m
