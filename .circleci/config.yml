@@ -35,6 +35,9 @@ jobs:
           environment:
             DATASOURCES_DEFAULT_URL: jdbc:postgresql://localhost:5432/funicular
           command: gradle test jacocoTestReport
+      - run:
+          name: Generate OCI image
+          command: gradle dockerBuild
       - save_cache:
           paths:
             - ~/.gradle
