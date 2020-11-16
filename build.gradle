@@ -43,6 +43,10 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
     implementation("io.micronaut.views:micronaut-views-thymeleaf")
 
+    testImplementation "io.micronaut.test:micronaut-test-spock:${ micronautTestSpock }", {
+        version { strictly "${ micronautTestSpock }" }
+    }
+
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
 
