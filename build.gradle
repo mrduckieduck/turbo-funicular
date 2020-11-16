@@ -39,7 +39,7 @@ dependencies {
     implementation("javax.annotation:javax.annotation-api")
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.flyway:micronaut-flyway:${ micronautFlywayVersion }")
-    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari:${ micronautJdbcHikari }")
     implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
     implementation("io.micronaut.views:micronaut-views-thymeleaf")
 
