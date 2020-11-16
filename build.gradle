@@ -62,5 +62,7 @@ jacocoTestReport {
     }
 }
 
-
+dockerBuild {
+    images = ["docker.pkg.github.com/mrduckieduck/turbo-funicular/webapp:$project.version".toLowerCase()]
+}
 
