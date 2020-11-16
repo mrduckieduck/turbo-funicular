@@ -34,7 +34,7 @@ jobs:
           name: Run tests
           environment:
             DATASOURCES_DEFAULT_URL: jdbc:postgresql://localhost:5432/funicular
-          command: gradle test
+          command: gradle test jacocoTestReport
       - save_cache:
           paths:
             - ~/.gradle

@@ -3,6 +3,7 @@ package turbo.funicular.entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -21,5 +22,7 @@ public class User {
     private String bio;
     private Long ghId;
     private String name;
-    private Integer public_gists;
+    @Column(name = "public_gists")
+    private Integer publicGistsCount;
+    private Boolean publicProfile;
 }
