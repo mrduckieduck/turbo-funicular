@@ -46,6 +46,9 @@ dependencies {
     testImplementation "io.micronaut.test:micronaut-test-spock:${ micronautTestSpock }", {
         version { strictly "${ micronautTestSpock }" }
     }
+    testImplementation "org.codehaus.groovy:groovy:${ groovyVersion }", {
+        version { strictly "${ groovyVersion }" }
+    }
 
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
