@@ -3,7 +3,6 @@ orbs:
   codecov: codecov/codecov@1.1.1
 jobs:
   build:
-    #paralellism: 2
     docker:
       - image: circleci/openjdk:11-jdk
       - image: postgres:13.1-alpine
