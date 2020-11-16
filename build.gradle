@@ -53,12 +53,12 @@ dependencies {
         version { strictly "${ micronautTestSpock }" }
     }
 
-    // If using Spock, need to depend on geb-spock
     testImplementation "org.gebish:geb-spock:${ gebVersion }"
-    // Need a driver implementation
-    //testCompile "org.seleniumhq.selenium:selenium-firefox-driver:${ seleniumVersion }"
-    testCompile "org.seleniumhq.selenium:htmlunit-driver:${ seleniumHtmlUnitDriverVersion }"
-    testRuntime "org.seleniumhq.selenium:selenium-support:${ seleniumVersion }"
+    //testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:${ seleniumVersion }"
+    testImplementation "org.seleniumhq.selenium:htmlunit-driver:${ seleniumHtmlUnitDriverVersion }"
+    testImplementation "org.seleniumhq.selenium:selenium-api:${ seleniumVersion }"
+    testImplementation "org.seleniumhq.selenium:selenium-support:${ seleniumVersion }"
+    testRuntime 'net.sourceforge.htmlunit:htmlunit:2.35.0'
 
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")

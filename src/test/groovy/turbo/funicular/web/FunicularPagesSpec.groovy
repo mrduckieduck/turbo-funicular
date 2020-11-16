@@ -2,21 +2,23 @@ package turbo.funicular.web
 
 import geb.Page
 import geb.spock.GebSpec
-import spock.lang.Ignore
+import io.micronaut.runtime.server.EmbeddedServer
+import io.micronaut.test.extensions.spock.annotation.MicronautTest
 
-@Ignore
+import javax.inject.Inject
+
+@MicronautTest
 class FunicularPagesSpec extends GebSpec {
+    @Inject
+    EmbeddedServer embeddedServer
 
     def "can access Funicular homepage"() {
         given:
-            to HomePage
+            browser.baseUrl = "http://localhost:${ embeddedServer.port }"
         when:
-            true
-            //manualsMenu.open()
-            //.links[0].click()
+            to HomePage
         then:
             true
-            //at TheBookOfGebPage
     }
 
 }
@@ -24,8 +26,7 @@ class FunicularPagesSpec extends GebSpec {
 
 class HomePage extends Page {
     static url = "/"
-    static at = { title == "Geb - Very Groovy Browser Automation" }
+    static at = { title == "Home" }
     static content = {
-        //manualsMenu { module(ManualsMenuModule) }
     }
 }
