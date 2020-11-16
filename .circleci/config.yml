@@ -32,6 +32,8 @@ jobs:
             echo Failed waiting for Postgress && exit 1
       - run:
           name: Run tests
+          environment:
+            DATASOURCES_DEFAULT_URL: jdbc:postgresql://localhost:5432/funicular
           command: gradle test
       - save_cache:
           paths:
