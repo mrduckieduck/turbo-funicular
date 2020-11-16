@@ -1,21 +1,21 @@
 version: 2.1
 orbs:
   codecov: codecov/codecov@1.1.1
-jobs:
-  build:
-    #paralellism: 2
+defaults: &defaults
+  working_directory: ~/repo
+executor:
+  default-executor:
     docker:
       - image: circleci/openjdk:11-jdk
       - image: postgres:13.1-alpine
-        environment:
-          POSTGRES_USER: user
-          POSTGRES_DB: funicular
-          POSTGRES_PASSWORD: secret
-    working_directory: ~/repo
-    environment:
-      JVM_OPTS: -Xmx3200m
-      TERM: dumb
-      GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
+          environment:
+            POSTGRES_USER: user
+            POSTGRES_DB: funicular
+            POSTGRES_PASSWORD: secret
+jobs:
+  run_tests:
+    <<: *defaults
+    executor: default-executor
     steps:
       - checkout
       - restore_cache:
@@ -39,9 +39,6 @@ jobs:
           environment:
             DATASOURCES_DEFAULT_URL: jdbc:postgresql://localhost:5432/funicular
           command: gradle test jacocoTestReport
-      - run:
-          name: Generate OCI image
-          command: gradle dockerBuild
       - save_cache:
           paths:
             - ~/.gradle
@@ -53,3 +50,6 @@ jobs:
           path: build/test-results/test
       - codecov/upload:
           file: build/reports/jacoco/test/jacocoTestReport.xml
+      - run:
+          name: Generate OCI image
+          command: gradle dockerBuild
