@@ -1,5 +1,6 @@
 # turbo-funicular
 
+[![codecov](https://codecov.io/gh/mrduckieduck/turbo-funicular/branch/main/graph/badge.svg)](https://codecov.io/gh/mrduckieduck/turbo-funicular)
 
 ## Local development environment
 
