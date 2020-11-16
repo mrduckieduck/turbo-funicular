@@ -53,6 +53,13 @@ dependencies {
         version { strictly "${ micronautTestSpock }" }
     }
 
+    // If using Spock, need to depend on geb-spock
+    testImplementation "org.gebish:geb-spock:${ gebVersion }"
+    // Need a driver implementation
+    //testCompile "org.seleniumhq.selenium:selenium-firefox-driver:${ seleniumVersion }"
+    testCompile "org.seleniumhq.selenium:htmlunit-driver:${ seleniumHtmlUnitDriverVersion }"
+    testRuntime "org.seleniumhq.selenium:selenium-support:${ seleniumVersion }"
+
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
 
@@ -63,6 +70,10 @@ mainClassName = "turbo.funicular.Application"
 java {
     sourceCompatibility = JavaVersion.toVersion(javaVersion)
     targetCompatibility = JavaVersion.toVersion(javaVersion)
+}
+
+test {
+    systemProperties "geb.build.reportsDir": "$reportsDir/geb"
 }
 
 dockerBuild {
