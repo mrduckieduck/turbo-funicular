@@ -26,7 +26,7 @@ class TurboFunicularSpec extends Specification {
 
     void 'ssss'() {
         given:
-            def user = new User(username: 'domix')
+            def user = new User(login: 'domix', ghId: 21805)
             userRepository.save(user)
         expect:
             userRepository.findAll().size() == 1

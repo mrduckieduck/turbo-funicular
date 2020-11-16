@@ -16,5 +16,10 @@ public class User {
     @Id
     @GeneratedValue
     private Long id;
-    private String username;
+    private String login;
+    private String avatarUrl;
+    private String bio;
+    private Long ghId;
+    private String name;
+    private Integer public_gists;
 }
