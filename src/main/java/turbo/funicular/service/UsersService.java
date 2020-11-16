@@ -19,6 +19,8 @@ public class UsersService {
 
     public Optional<User> addUser(UserCommand command) {
         User user = UsersMapper.INSTANCE.commandToEntity(command);
+        //by default all profiles are public. If a user want to run a private profile, should do it by itself
+        user.setPublicProfile(true);
         User saved = userRepository.save(user);
         return Optional.of(saved);
     }
