@@ -43,11 +43,14 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
     implementation("io.micronaut.views:micronaut-views-thymeleaf")
 
-    testImplementation "io.micronaut.test:micronaut-test-spock:${ micronautTestSpock }", {
-        version { strictly "${ micronautTestSpock }" }
-    }
     testImplementation "org.codehaus.groovy:groovy:${ groovyVersion }", {
         version { strictly "${ groovyVersion }" }
+    }
+    testImplementation "org.spockframework:spock-core:${ spockVersion }", {
+        version { strictly "${ spockVersion }" }
+    }
+    testImplementation "io.micronaut.test:micronaut-test-spock:${ micronautTestSpock }", {
+        version { strictly "${ micronautTestSpock }" }
     }
 
     runtimeOnly("ch.qos.logback:logback-classic")
