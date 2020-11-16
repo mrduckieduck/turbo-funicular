@@ -19,15 +19,18 @@ micronaut {
     testRuntime "spock2"
     processing {
         incremental true
-        annotations "com.*"
         annotations "org.*"
+        annotations "com.*"
     }
 }
 
 dependencies {
+
     annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    annotationProcessor('org.projectlombok:lombok:1.18.16')
     compileOnly("org.graalvm.nativeimage:svm")
     compileOnly("org.projectlombok:lombok:1.18.16")
+    compileOnly("jakarta.persistence:jakarta.persistence-api:2.2.2")
 
     implementation("io.micronaut:micronaut-validation")
     implementation("io.micronaut:micronaut-runtime")

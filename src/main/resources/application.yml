@@ -12,3 +12,8 @@ datasources:
     username: user
     password: secret
     dialect: POSTGRES
+
+flyway:
+  datasources:
+    default:
+      enabled: true
