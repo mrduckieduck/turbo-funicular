@@ -42,4 +42,5 @@ public class UiController {
 
         return HttpResponse.ok(featuredUsers);
     }
+
 }

@@ -7,4 +7,4 @@ export POSTGRES_PORT=$(grep "postgresContainerPort" gradle.properties|cut -d'=' 
 
 cd src/test/docker/
 
-docker-compose down --rmi local -v
+docker-compose down --rmi local -v --remove-orphans

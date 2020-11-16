@@ -9,4 +9,4 @@ export POSTGRES_DB=funicular
 export POSTGRES_USER=user
 export POSTGRES_PASSWORD=secret
 
-docker-compose up -d
+docker-compose up -d --remove-orphans
