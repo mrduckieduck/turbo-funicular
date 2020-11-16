@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layoutFile :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{login.page.title}"></title>
+</head>
+<body>
+<section>
+    <div class="container">
+        <div class="section">
+            <div class="row">
+                <div class="col s12 m12">
+                    <h2 class="header" th:text="#{login.page.title}"></h2>
+                    <div class="card horizontal">
+                        <div class="card-image">
+                            <img src="/img/login.jpg">
+                        </div>
+                        <div class="card-stacked">
+                            <div class="card-content">
+                                <h5 th:text="#{login.page.notice}"></h5>
+                                <blockquote th:text="#{login.page.notice.detail}"></blockquote>
+                            </div>
+                            <div class="card-action">
+                                <a href="#" th:text="#{login.page.action.label}"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
