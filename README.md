@@ -2,6 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/mrduckieduck/turbo-funicular.svg?style=shield)](https://circleci.com/gh/mrduckieduck/turbo-funicular)
 [![codecov](https://codecov.io/gh/mrduckieduck/turbo-funicular/branch/main/graph/badge.svg)](https://codecov.io/gh/mrduckieduck/turbo-funicular)
+[![Maintainability](https://api.codeclimate.com/v1/badges/7e871bdc96a6f38fcbb5/maintainability)](https://codeclimate.com/github/mrduckieduck/turbo-funicular/maintainability)
 
 ## Local development environment
 
