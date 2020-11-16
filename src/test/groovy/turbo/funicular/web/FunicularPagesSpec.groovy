@@ -18,7 +18,14 @@ class FunicularPagesSpec extends GebSpec {
         when:
             to HomePage
         then:
-            true
+            at HomePage
+        when:
+            HomePage homePage = browser.page HomePage
+        then: 'click the start link'
+            homePage.start()
+        then:
+            at StartPage
+
     }
 
 }
@@ -27,6 +34,18 @@ class FunicularPagesSpec extends GebSpec {
 class HomePage extends Page {
     static url = "/"
     static at = { title == "Home" }
+    static content = {
+        startButton { $('#start-button') }
+    }
+
+    void start() {
+        startButton.click()
+    }
+}
+
+class StartPage extends Page {
+    static url = "/getting-started"
+    static at = { title == "Log In to Funicular" }
     static content = {
     }
 }
