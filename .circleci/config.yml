@@ -47,4 +47,4 @@ jobs:
       - store_test_results:
           path: build/test-results/test
       - codecov/upload:
-        file: {{ coverage_report_filepath }}
+          file: {{ coverage_report_filepath }}
