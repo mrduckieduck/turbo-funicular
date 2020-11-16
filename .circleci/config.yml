@@ -1,4 +1,6 @@
-version: 2
+version: 2.1
+orbs:
+  codecov: codecov/codecov@1.1.1
 jobs:
   build:
     #paralellism: 2
@@ -49,3 +51,5 @@ jobs:
           destination: reports
       - store_test_results:
           path: build/test-results/test
+      - codecov/upload:
+          file: build/reports/jacoco/test/jacocoTestReport.xml
