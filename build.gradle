@@ -29,6 +29,8 @@ dependencies {
     annotationProcessor("io.micronaut.data:micronaut-data-processor:${ micronautDataVersion }")
     annotationProcessor("org.projectlombok:lombok:${ lombokVersion }")
     annotationProcessor "org.mapstruct:mapstruct-processor:${ mapstructVersion }"
+    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+
     compileOnly("org.graalvm.nativeimage:svm")
     compileOnly("org.projectlombok:lombok:${ lombokVersion }")
     compileOnly("jakarta.persistence:jakarta.persistence-api:2.2.2")
@@ -42,6 +44,10 @@ dependencies {
     implementation("io.micronaut.sql:micronaut-jdbc-hikari:${ micronautJdbcHikari }")
     implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
     implementation("io.micronaut.views:micronaut-views-thymeleaf")
+    implementation("org.kohsuke:github-api:1.116")
+
+    implementation("io.micronaut.security:micronaut-security-jwt")
+    implementation("io.micronaut.security:micronaut-security-oauth2")
 
     testImplementation "org.codehaus.groovy:groovy:${ groovyVersion }", {
         version { strictly "${ groovyVersion }" }
