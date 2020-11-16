@@ -55,6 +55,12 @@ java {
     targetCompatibility = JavaVersion.toVersion(javaVersion)
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
 
 
 
