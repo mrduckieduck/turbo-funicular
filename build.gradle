@@ -26,7 +26,7 @@ micronaut {
 }
 
 dependencies {
-    annotationProcessor("io.micronaut.data:micronaut-data-processor")
+    annotationProcessor("io.micronaut.data:micronaut-data-processor:${ micronautDataVersion }")
     annotationProcessor("org.projectlombok:lombok:${ lombokVersion }")
     annotationProcessor "org.mapstruct:mapstruct-processor:${ mapstructVersion }"
     compileOnly("org.graalvm.nativeimage:svm")
@@ -40,7 +40,7 @@ dependencies {
     implementation("io.micronaut:micronaut-http-client")
     implementation("io.micronaut.flyway:micronaut-flyway")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari")
-    implementation("io.micronaut.data:micronaut-data-jdbc")
+    implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
     implementation("io.micronaut.views:micronaut-views-thymeleaf")
 
     runtimeOnly("ch.qos.logback:logback-classic")
