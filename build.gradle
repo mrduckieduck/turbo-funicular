@@ -67,7 +67,7 @@ dependencies {
     testImplementation "org.seleniumhq.selenium:selenium-support:${ seleniumVersion }"
     testRuntime 'net.sourceforge.htmlunit:htmlunit:2.35.0'
 
-    testImplementation 'com.github.javafaker:javafaker:1.0.2'
+    implementation 'com.github.javafaker:javafaker:1.0.2'
 
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
