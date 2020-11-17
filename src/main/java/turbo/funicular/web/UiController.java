@@ -35,7 +35,7 @@ public class UiController {
         return HttpResponse.ok(Map.of());
     }
 
-    @View("home")
+    @View("user_home")
     @Get("/home")
     public HttpResponse<Map> home() {
         final var users = usersService.randomTop(5)
