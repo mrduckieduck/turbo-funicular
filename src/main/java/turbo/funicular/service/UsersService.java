@@ -1,5 +1,6 @@
 package turbo.funicular.service;
 
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import turbo.funicular.entity.User;
@@ -10,6 +11,7 @@ import turbo.funicular.web.UserCommand;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -42,6 +44,15 @@ public class UsersService {
             })
             .map(userRepository::save)
             .findFirst();
+    }
+
+    public List<User> randomTop(Integer count) {
+        long usersCount = userRepository.count();
+        if (count >= usersCount) {
+            // we don't have enough users, so return all of them...
+            return Lists.newArrayList(userRepository.findAll());
+        }
+        return userRepository.randomTopUsers(count);
     }
 
 }

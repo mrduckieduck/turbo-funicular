@@ -19,13 +19,11 @@ class FunicularPagesSpec extends GebSpec {
             to HomePage
         then:
             at HomePage
-        when:
+        when: 'click the start link'
             HomePage homePage = browser.page HomePage
-        then: 'click the start link'
             homePage.start()
         then:
             at StartPage
-
     }
 
 }

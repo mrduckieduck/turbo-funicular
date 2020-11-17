@@ -13,7 +13,7 @@ class UserRepositorySpecs extends Specification {
     @Inject
     UserRepository userRepository
 
-    void 'should add a user to the database'() {
+    def 'should add a user to the database'() {
         given:
             def user = new User(login: 'domix', ghId: 21805)
             userRepository.save(user)
