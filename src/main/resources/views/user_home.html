@@ -34,8 +34,11 @@
                                     <ul class="collection" th:each="gist: ${gists}">
                                         <li class="collection-item avatar">
                                             <i class="material-icons circle red">code</i>
-                                            <span class="title" th:text="${gist.description}"></span>
-                                            <p>First Line <br>
+                                            <span class="title" th:text="${#strings.abbreviate(gist.description, 30)}"></span>
+                                            <p th:text="#{login.page.notice}">First Line <br>
+                                                Second Line
+                                            </p>
+                                            <p th:text="#{login.page.notice}">First Line <br>
                                                 Second Line
                                             </p>
                                             <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
