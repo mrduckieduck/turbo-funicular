@@ -15,5 +15,5 @@ public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findUserWith(String login, Long id);
 
     @Query("select * from users ORDER BY random() limit :count")
-    List<User> randomTopUsers(Integer count);
+    List<User> randomUsers(Integer count);
 }
