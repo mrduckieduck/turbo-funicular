@@ -52,7 +52,7 @@ public class UsersService {
             // we don't have enough users, so return all of them...
             return Lists.newArrayList(userRepository.findAll());
         }
-        return userRepository.randomTopUsers(count);
+        return userRepository.randomUsers(count);
     }
 
 }
