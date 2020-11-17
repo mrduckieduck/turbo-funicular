@@ -46,12 +46,12 @@ public class UiController {
         //TODO: This should be set by the security infra when ready. to get the gists owned by the current user logged
         final String username = "";
 
-        final var featuredUsers = Map.of(
+        final var model = Map.of(
             "featuredUsers", users,
             "gists", gitHubService.findGistsByUser(username)
         );
 
-        return HttpResponse.ok(featuredUsers);
+        return HttpResponse.ok(model);
     }
 
 }
