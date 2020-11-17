@@ -43,17 +43,13 @@ dependencies {
     implementation("io.micronaut.flyway:micronaut-flyway:${ micronautFlywayVersion }")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari:${ micronautJdbcHikari }")
     implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
-<<<<<<< HEAD
-    implementation("io.micronaut.views:micronaut-views-thymeleaf")
     implementation("org.kohsuke:github-api:1.116")
 
     implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut.security:micronaut-security-oauth2")
-=======
     implementation "io.micronaut.views:micronaut-views-thymeleaf:${ micronautViewsThymeleaf }", {
         version { strictly "${ micronautViewsThymeleaf }" }
     }
->>>>>>> 038b49d (Actuializa algunas librerias y Gradle #30)
     implementation("com.google.guava:guava:30.0-jre")
 
     testImplementation "org.codehaus.groovy:groovy:${ groovyVersion }", {
