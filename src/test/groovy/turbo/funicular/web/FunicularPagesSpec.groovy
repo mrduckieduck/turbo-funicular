@@ -24,6 +24,10 @@ class FunicularPagesSpec extends GebSpec {
             homePage.start()
         then:
             at StartPage
+        when:
+            to UserHomePage
+        then:
+            at UserHomePage
     }
 
 }
@@ -44,6 +48,13 @@ class HomePage extends Page {
 class StartPage extends Page {
     static url = "/getting-started"
     static at = { title == "Log In to Funicular" }
+    static content = {
+    }
+}
+
+class UserHomePage extends Page {
+    static url = "/home"
+    static at = { title == "User Home" }
     static content = {
     }
 }
