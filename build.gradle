@@ -33,7 +33,7 @@ dependencies {
 
     compileOnly("org.graalvm.nativeimage:svm")
     compileOnly("org.projectlombok:lombok:${ lombokVersion }")
-    compileOnly("jakarta.persistence:jakarta.persistence-api:2.2.2")
+    compileOnly("jakarta.persistence:jakarta.persistence-api:3.0.0")
 
     implementation("org.mapstruct:mapstruct:${ mapstructVersion }")
     implementation("io.micronaut:micronaut-validation")
