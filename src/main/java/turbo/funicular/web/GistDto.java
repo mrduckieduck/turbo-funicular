@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -16,4 +17,5 @@ public class GistDto {
     private final String ghId;
     private final LocalDateTime updatedAt;
     private final Boolean publicGist;
+    private final List<GistContent> files;
 }
