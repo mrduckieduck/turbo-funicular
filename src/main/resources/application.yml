@@ -10,11 +10,11 @@ micronaut:
         signatures:
           secret:
             generator:
-              secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"' # <3>
+              secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"'
     oauth2:
       clients:
         github:
-          client-id:  '${OAUTH_CLIENT_ID}'
+          client-id: '${OAUTH_CLIENT_ID}'
           client-secret: '${OAUTH_CLIENT_SECRET}'
           scopes:
             - user:email
@@ -28,12 +28,6 @@ micronaut:
     endpoints:
       logout:
         get-allowed: true
----
-micronaut:
-  http:
-    services:
-      githubv3:
-        url: "https://api.github.com"
 ---
 micronaut.router.static-resources.static.paths:
   - classpath:/static
