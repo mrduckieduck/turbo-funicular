@@ -1,7 +1,9 @@
 package turbo.funicular.service
 
+import com.github.javafaker.Faker
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import spock.lang.Specification
+import turbo.funicular.entity.User
 import turbo.funicular.entity.UserRepository
 import turbo.funicular.service.exceptions.DuplicatedEntityException
 import turbo.funicular.web.UserCommand
@@ -9,6 +11,7 @@ import turbo.funicular.web.UserCommand
 import javax.inject.Inject
 import javax.transaction.Transactional
 import javax.validation.ConstraintViolationException
+import java.util.stream.Collectors
 
 @MicronautTest
 @Transactional
@@ -87,4 +90,46 @@ class UsersServiceSpecs extends Specification {
             duplicatedEntityException.duplicatedIdentifier == userCommand.getLogin() + ", " + userCommand.getGhId()
     }
 
+    def 'should verify the functionality in the random user selection'() {
+        given: 'Create 5 new users'
+            5.times { usersService.addUser(fakeUser(it)) }
+        expect: 'To have only the 5 new users'
+            userRepository.count() == 5
+        when: 'ask for 10 random users'
+            def randomTop = usersService.randomTop(10)
+        then: 'return only the 5 existing users'
+            randomTop.size() == 5
+        when: 'ask for 5 random users'
+            randomTop = usersService.randomTop(5)
+        then: 'return only the 5 existing users'
+            randomTop.size() == 5
+        when: 'create another 15 users'
+            (5..19).each { usersService.addUser(fakeUser(it)) }
+        then: 'verify we have 20 users'
+            userRepository.count() == 20
+        when: 'ask for 15 random users'
+            def count = 15
+            randomTop = usersService.randomTop(count)
+        then: 'verify we got the requested random unique users'
+            //we generate another list, because the service returns an immutable list.
+            def uniqueUsers = randomTop.stream()
+                .collect(Collectors.toList())
+                .unique { User u1, User u2 -> u1.getId() <=> u2.getId() }
+
+            uniqueUsers.size() == count
+    }
+
+
+    static UserCommand fakeUser(Long id) {
+        def faker = new Faker()
+
+        return UserCommand.builder()
+            .ghId(id)
+            .login(faker.name().username())
+            .name(faker.name().name())
+            .avatarUrl(faker.internet().avatar())
+            .bio(faker.superhero().descriptor())
+            .publicGistsCount(faker.number().randomDigit())
+            .build()
+    }
 }
