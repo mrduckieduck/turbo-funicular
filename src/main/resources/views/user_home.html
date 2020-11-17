@@ -31,16 +31,16 @@
                         <div class="col s8">
                             <div class="card">
                                 <div class="card-content">
-                                    <svg fill="currentColor" viewBox="0 0 500 250" class="demo-graph">
-                                        <use xlink:href="#chart"></use>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="card">
-                                <div class="card-content">
-                                    <svg fill="currentColor" viewBox="0 0 500 250" class="demo-graph">
-                                        <use xlink:href="#chart"></use>
-                                    </svg>
+                                    <ul class="collection" th:each="gist: ${gists}">
+                                        <li class="collection-item avatar">
+                                            <i class="material-icons circle red">code</i>
+                                            <span class="title" th:text="${gist.description}"></span>
+                                            <p>First Line <br>
+                                                Second Line
+                                            </p>
+                                            <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -49,65 +49,24 @@
                                 <div class="demo-cards">
                                     <div class="card">
                                         <div class="card-content">
-                                            <div class="demo-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
-                                                <div class="mdl-card__title mdl-card--expand mdl-color--teal-300">
-                                                    <h2 class="card-title mdl-card__title-text">Updates</h2>
-                                                </div>
-                                                <div class="mdl-card__supporting-text mdl-color-text--grey-600">
-                                                    Non dolore elit adipisicing ea reprehenderit consectetur culpa.
-                                                </div>
-                                            </div>
+                                            <ul class="collection" th:each="user: ${featuredUsers}">
+                                                <li class="collection-item avatar">
+                                                    <img src="images/yuna.jpg" alt="" class="circle">
+                                                    <span class="title">Title</span>
+                                                    <p>First Line <br>
+                                                        Second Line
+                                                    </p>
+                                                    <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
+                                                </li>
+                                            </ul>
                                         </div>
-                                        <div class="card-action mdl-card__actions mdl-card--border">
+                                        <!--div class="card-action mdl-card__actions mdl-card--border">
                                             <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
-                                        </div>
+                                        </div-->
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="demo-cards">
-                                    <div class="demo-options mdl-card mdl-color--deep-purple-500 mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--3-col-tablet mdl-cell--12-col-desktop">
-                                        <div class="card mdl-card__supporting-text mdl-color-text--blue-grey-50">
-                                            <div class="card-content">
-                                                <h3 class="card-title">View options</h3>
-                                                <form>
-                                                    <ul>
-                                                        <li>
-                                                            <label for="chkbox1" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-                                                                <input type="checkbox" checked="checked" id="chkbox1" class="mdl-checkbox__input">
-                                                                <span class="mdl-checkbox__label">Click per object</span>
-                                                            </label>
-                                                        </li>
-                                                        <li>
-                                                            <label for="chkbox2" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-                                                                <input type="checkbox" checked="checked" id="chkbox2" class="mdl-checkbox__input">
-                                                                <span class="mdl-checkbox__label">Views per object</span>
-                                                            </label>
-                                                        </li>
-                                                        <li>
-                                                            <label for="chkbox3" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-                                                                <input type="checkbox" checked="checked" id="chkbox3" class="mdl-checkbox__input">
-                                                                <span class="mdl-checkbox__label">Objects selected</span>
-                                                            </label>
-                                                        </li>
-                                                        <li>
-                                                            <label for="chkbox4" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
-                                                                <input type="checkbox" checked="checked" id="chkbox4" class="mdl-checkbox__input">
-                                                                <span class="mdl-checkbox__label">Objects viewed</span>
-                                                            </label>
-                                                        </li>
-                                                    </ul>
-                                                </form>
-                                            </div>
-                                            <div class="card-action mdl-card__actions mdl-card--border">
-                                                <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--blue-grey-50">Change location</a>
-                                                <div class="mdl-layout-spacer"></div>
-                                                <i class="material-icons">location_on</i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
