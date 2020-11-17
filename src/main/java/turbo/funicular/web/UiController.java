@@ -4,7 +4,6 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.rules.SecurityRule;
 import io.micronaut.views.View;
 import lombok.RequiredArgsConstructor;
 import turbo.funicular.service.GitHubService;
@@ -13,6 +12,7 @@ import turbo.funicular.service.UsersService;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Controller
@@ -21,22 +21,23 @@ public class UiController {
     private final UsersService usersService;
     private final GitHubService gitHubService;
 
-    @Secured(SecurityRule.IS_ANONYMOUS)
-    @View("index")
     @Get
+    @View("index")
+    @Secured(IS_ANONYMOUS)
     public HttpResponse<Map> index() {
         return HttpResponse.ok(Map.of());
     }
 
-    @Secured(SecurityRule.IS_ANONYMOUS)
     @View("start")
     @Get("/getting-started")
+    @Secured(IS_ANONYMOUS)
     public HttpResponse<Map> start() {
         return HttpResponse.ok(Map.of());
     }
 
-    @View("user_home")
     @Get("/home")
+    @View("user_home")
+    @Secured(IS_ANONYMOUS)
     public HttpResponse<Map> home() {
         final var users = usersService.randomTop(5)
             .stream()

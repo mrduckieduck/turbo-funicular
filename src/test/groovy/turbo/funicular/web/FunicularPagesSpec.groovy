@@ -54,7 +54,7 @@ class StartPage extends Page {
 
 class UserHomePage extends Page {
     static url = "/home"
-    static at = { title == "Home" }
+    static at = { title == "User Home" }
     static content = {
     }
 }
