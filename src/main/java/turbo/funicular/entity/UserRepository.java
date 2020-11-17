@@ -11,5 +11,5 @@ import static io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES;
 @JdbcRepository(dialect = POSTGRES)
 public interface UserRepository extends CrudRepository<User, Long> {
     @Query("select * from users u where u.login = :login or u.gh_id = :id")
-    Optional<User> findUser(String login, Long id);
+    Optional<User> findUserWith(String login, Long id);
 }

@@ -27,7 +27,7 @@ class UsersServiceSpecs extends Specification {
                 .build()
             def user = usersService.addUser(userCommand)
         expect:
-            user
+            user.isPresent()
     }
 
     def "should validate the users' properties"() {

@@ -16,11 +16,11 @@ public class ValidationService {
     private final MessageSource messageSource;
     private final MessageSource.MessageContext messageContext;
 
-    public void validate(Object toValidate) {
-        validate(toValidate, "validation.default.message");
+    public <T> T validate(T toValidate) {
+        return validate(toValidate, "validation.default.message");
     }
 
-    public void validate(Object toValidate, String messageCode) {
+    public <T> T validate(T toValidate, String messageCode) {
         Set<ConstraintViolation<Object>> violations = validator.validate(toValidate);
         if (!violations.isEmpty()) {
             String message = messageSource
@@ -28,5 +28,7 @@ public class ValidationService {
                 .orElse("Validation error found.");
             throw new ConstraintViolationException(message, violations);
         }
+
+        return toValidate;
     }
 }
