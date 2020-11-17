@@ -10,6 +10,8 @@ import turbo.funicular.web.UserCommand;
 import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
@@ -21,22 +23,25 @@ public class UsersService {
     private final UserRepository userRepository;
     private final ValidationService validationService;
 
-    public User addUser(@NotNull UserCommand command) {
+    public Optional<User> addUser(@NotNull UserCommand command) {
         validationService.validate(command);
 
         userRepository
-            .findUser(command.getLogin(), command.getGhId())
+            .findUserWith(command.getLogin(), command.getGhId())
             .ifPresent(user -> {
                 throw new DuplicatedEntityException("User", command.getLogin() + ", " + command.getGhId());
             });
 
-        User user = USERS_MAPPER.commandToEntity(command);
-        validationService.validate(user);
-
-        //by default all profiles are public. If an user wants to run a private profile, should do it by itself
-        user.setPublicProfile(true);
-
-        return userRepository.save(user);
+        return Stream.of(USERS_MAPPER.commandToEntity(command))
+            .map(validationService::validate)
+            .peek(user1 -> {
+                // by default all profiles are public.
+                // If an user wants to run a private profile,
+                // should do it by itself
+                user1.setPublicProfile(true);
+            })
+            .map(userRepository::save)
+            .findFirst();
     }
 
 }
