@@ -58,7 +58,7 @@ public class UiController {
         return HttpResponse.ok(model(authentication));
     }
 
-    private Map<String, Object> model(Authentication authentication) {
+    protected Map<String, Object> model(Authentication authentication) {
         final var users = usersService.randomTop(5)
             .stream()
             .map(USERS_MAPPER::entityToCommand)
