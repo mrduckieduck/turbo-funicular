@@ -24,10 +24,6 @@ class FunicularPagesSpec extends GebSpec {
             homePage.start()
         then:
             at StartPage
-        when:
-            to UserHomePage
-        then:
-            at UserHomePage
     }
 
 }
