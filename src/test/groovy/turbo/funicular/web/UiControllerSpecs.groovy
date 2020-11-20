@@ -27,9 +27,10 @@ class UiControllerSpecs extends Specification {
 
     def 'should test the start page for null auth'() {
         given:
+            def authentication = Stub(Authentication)
             def controller = new UiController(usersService, gitHubService)
         when:
-            def response = controller.start(null)
+            def response = controller.start(authentication)
         then:
             response
     }
