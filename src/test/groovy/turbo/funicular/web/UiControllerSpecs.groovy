@@ -15,7 +15,7 @@ class UiControllerSpecs extends Specification {
     @Inject
     GitHubService gitHubService
 
-    def foo() {
+    def 'should test the model generation for auth user at home page'() {
         given:
             def authentication = Stub(Authentication)
             def controller = new UiController(usersService, gitHubService)
@@ -23,5 +23,14 @@ class UiControllerSpecs extends Specification {
             def model = controller.model(authentication)
         then:
             model
+    }
+
+    def 'should test the start page for null auth'() {
+        given:
+            def controller = new UiController(usersService, gitHubService)
+        when:
+            def response = controller.start(null)
+        then:
+            response
     }
 }
