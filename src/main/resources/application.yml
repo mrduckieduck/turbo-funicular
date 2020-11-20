@@ -28,6 +28,23 @@ micronaut:
     endpoints:
       logout:
         get-allowed: true
+    intercept-url-map:
+      - pattern: /favicon.ico
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /css/*
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /js/*
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /img/*
+        http-method: GET
+        access:
+          - isAnonymous()
 ---
 micronaut.router.static-resources.static.paths:
   - classpath:/static
