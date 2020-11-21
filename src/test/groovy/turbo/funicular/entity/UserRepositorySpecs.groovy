@@ -19,5 +19,18 @@ class UserRepositorySpecs extends Specification {
             userRepository.save(user)
         expect:
             userRepository.findAll().size() == 1
+        when:
+            def userFound = userRepository.findUserWith('domix', 21805)
+        then:
+            userFound.present
+            def entity = userFound.get()
+            entity.createdAt
+            entity.lastUpdated
+        when:
+            def lastUpdated = entity.lastUpdated
+            user.avatarUrl = 'bar'
+            def updatedUser = userRepository.update(user)
+        then:
+            updatedUser.lastUpdated != lastUpdated
     }
 }
