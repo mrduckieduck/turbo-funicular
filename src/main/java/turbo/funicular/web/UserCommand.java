@@ -10,6 +10,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -29,4 +30,6 @@ public class UserCommand {
     @Size(max = 200)
     private String name;
     private Integer publicGistsCount;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastUpdated;
 }
