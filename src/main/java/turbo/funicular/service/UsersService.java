@@ -34,19 +34,23 @@ public class UsersService {
                 throw new DuplicatedEntityException("User", command.getLogin() + ", " + command.getGhId());
             });
 
-        return Stream.of(USERS_MAPPER.commandToEntity(command))
+        return add(command);
+    }
+
+    private Optional<User> add(UserCommand usercommand) {
+        return Stream.of(USERS_MAPPER.commandToEntity(usercommand))
             .map(validationService::validate)
-            .peek(user1 -> {
+            .peek(user -> {
                 // by default all profiles are public.
                 // If an user wants to run a private profile,
                 // should do it by itself
-                user1.setPublicProfile(true);
+                user.setPublicProfile(true);
             })
             .map(userRepository::save)
             .findFirst();
     }
 
-    public List<User> randomTop(Integer count) {
+    public List<User> randomTop(Long count) {
         long usersCount = userRepository.count();
         if (count >= usersCount) {
             // we don't have enough users, so return all of them...
@@ -55,13 +59,11 @@ public class UsersService {
         return userRepository.randomUsers(count);
     }
 
-    public void loggedUser(String login, String accessToken) {
-        userRepository.findUserWith(login, 0l)
-            .ifPresentOrElse(user -> {
-                log.info("User {} just logged in", user.getLogin());
-            }, () -> {
-                //code for adding a user, wip
-                log.info("User {} not found", login);
-            });
+    public void addUserIfMissing(UserCommand userCommand) {
+        userRepository
+            .findUserWith(userCommand.getLogin(), userCommand.getGhId())
+            .ifPresentOrElse(
+                user -> log.info("User {} just logged in", user.getLogin()),
+                () -> add(userCommand));
     }
 }

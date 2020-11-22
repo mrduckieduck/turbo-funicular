@@ -11,11 +11,9 @@ import io.micronaut.security.oauth2.endpoint.token.response.TokenResponse;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Emitter;
 import io.reactivex.Flowable;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GitHubBuilder;
 import org.reactivestreams.Publisher;
-import turbo.funicular.github.GithubApiClient;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -23,14 +21,14 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
+
 @Slf4j
 @Named("github")
 @Singleton
-@RequiredArgsConstructor
 public class UserDetailsMapper implements OauthUserDetailsMapper {
 
     public static final String ROLE_GITHUB = "ROLE_GITHUB";
-    private final GithubApiClient apiClient;
 
     @Override
     public Publisher<UserDetails> createUserDetails(final TokenResponse tokenResponse) {
@@ -49,14 +47,18 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
             final var github = new GitHubBuilder()
                 .withJwtToken(tokenResponse.getAccessToken())
                 .build();
+
             final var user = github.getMyself();
             final var id = Long.valueOf(user.getId());
             final var username = user.getLogin();
             final var roles = List.of(ROLE_GITHUB);
 
+            final var userCommand = USERS_MAPPER.githubToCommand(user);
+
             Map<String, Object> attributes = Map.of(
                 ACCESS_TOKEN_KEY, tokenResponse.getAccessToken(),
-                "ghid", id
+                "id", id,
+                "ghUser", userCommand
             );
 
             final var userDetails = new UserDetails(username, roles, attributes);

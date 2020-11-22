@@ -1,5 +1,6 @@
 package turbo.funicular.entity
 
+import com.github.javafaker.Faker
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import spock.lang.Specification
 
@@ -12,15 +13,19 @@ class UserRepositorySpecs extends Specification {
 
     @Inject
     UserRepository userRepository
+    Faker faker = new Faker()
 
     def 'should add a user to the database'() {
         given:
-            def user = new User(login: 'domix', ghId: 21805)
+            def userCount = userRepository.count()
+            def username = faker.name().username()
+            def userId = userCount + 1
+            def user = new User(login: username, ghId: userId)
             userRepository.save(user)
         expect:
-            userRepository.findAll().size() == 1
+            userRepository.findAll().size() == (userCount + 1)
         when:
-            def userFound = userRepository.findUserWith('domix', 21805)
+            def userFound = userRepository.findUserWith(username, userId)
         then:
             userFound.present
             def entity = userFound.get()
