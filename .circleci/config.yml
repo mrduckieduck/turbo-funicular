@@ -10,7 +10,7 @@ jobs:
   build:
     #paralellism: 2
     docker:
-      - image: azul/zulu-openjdk:14.0.2
+      - image: azul/zulu-openjdk-debian:14.0.2
       - image: postgres:13.1-alpine
         environment:
           POSTGRES_USER: user
