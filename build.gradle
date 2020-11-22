@@ -92,6 +92,10 @@ dockerBuild {
     images = ["docker.pkg.github.com/mrduckieduck/turbo-funicular/webapp:$project.version".toLowerCase()]
 }
 
+jacoco {
+    toolVersion = jacocoVersion
+}
+
 jacocoTestReport {
     reports {
         xml.enabled = true
