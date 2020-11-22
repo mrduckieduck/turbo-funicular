@@ -72,7 +72,9 @@ public class UiController {
             .map(strings -> (List<String>) strings)
             .orElse(List.of());
 
-        final var ghUser = (Objects.requireNonNull(authentication).getAttributes().get("ghUser"));
+        final var ghUser = Optional.ofNullable(authentication)
+            .map(auth -> auth.getAttributes().get("ghUser"))
+            .orElse(UserCommand.builder().login(username).build());
 
         return Map.of(
             "isLoggedIn", Objects.nonNull(authentication),
