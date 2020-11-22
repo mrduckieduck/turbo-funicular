@@ -5,6 +5,7 @@ import org.kohsuke.github.GHGist;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import turbo.funicular.entity.User;
+import turbo.funicular.web.GistContent;
 import turbo.funicular.web.GistDto;
 
 import java.io.IOException;
@@ -67,11 +68,26 @@ public class GithubApiClient {
                 .description(gist.getDescription())
                 .ghId(gist.getGistId())
                 .publicGist(gist.isPublic())
+                .files(createGistContent(gist))
                 .build();
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
             throw new RuntimeException(ex);
         }
+    }
+
+    private List<GistContent> createGistContent(final GHGist gist) {
+        return gist.getFiles().values().stream()
+            .map(gistContent -> GistContent.builder()
+                .filename(gistContent.getFileName())
+                .language(gistContent.getLanguage())
+                .mimeType(gistContent.getType())
+                .size(gistContent.getSize())
+                .rawUrl(gistContent.getRawUrl())
+                .content(gistContent.getContent())
+                .build()
+            )
+            .collect(Collectors.toList());
     }
 
     private GitHub createGithubInstance(final String accessToken) {

@@ -13,4 +13,5 @@ public class GistContent {
     private final Integer size;
     private final String mimeType;
     private final String rawUrl;
+    private final String content;
 }
