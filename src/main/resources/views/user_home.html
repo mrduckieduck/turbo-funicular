@@ -6,70 +6,54 @@
 <body>
 <section>
     <div class="container">
-        <div class="section">
-            <div class="row">
-                <div class="col s12">
-                    <div class="card demo-charts mdl-color--white mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-grid">
-                        <div class="card-content">
-                            <div class="row">
-                                <div class="col s6">
-                                    <svg fill="currentColor" width="400px" height="200px" viewBox="0 0 1 1" class="demo-chart mdl-cell mdl-cell--4-col mdl-cell--3-col-desktop">
-                                        <use xlink:href="#piechart" mask="url(#piemask)"></use>
-                                        <text x="0.5" y="0.5" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">82<tspan font-size="0.2" dy="-0.07">%</tspan></text>
-                                    </svg>
-                                </div>
-                                <div class="col s6">
-                                    <svg fill="currentColor" width="400px" height="200px" viewBox="0 0 1 1" class="demo-chart mdl-cell mdl-cell--4-col mdl-cell--3-col-desktop">
-                                        <use xlink:href="#piechart" mask="url(#piemask)"></use>
-                                        <text x="0.5" y="0.5" font-family="Roboto" font-size="0.3" fill="#888" text-anchor="middle" dy="0.1">82<tspan dy="-0.07" font-size="0.2">%</tspan></text>
-                                    </svg>
-                                </div>
+        <div class="row">
+            <div class="col s6">
+                <div class="section">
+                    <ul class="collection" th:each="gist: ${gists}">
+                        <li class="collection-item avatar">
+                            <i class="material-icons circle">code</i>
+                            <a class="title"
+                               th:href="@{${#strings.concat('https://gist.github.com/', username, '/', gist.ghId)}}"
+                               th:text="${not #strings.isEmpty(gist.description)}? ${#strings.abbreviate(gist.description, 30)} : ${#strings.abbreviate(gist.files[0].filename, 30)}"></a>
+                            <p th:text="${gist.createdAt}"></p>
+                            <span class="secondary-content new badge" th:text="${gist.commentsCount}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col s6 m6">
+                <div class="section">
+                    <div class="card-panel grey lighten-5 z-depth-1">
+                        <div class="row valign-wrapper">
+                            <div class="col s4">
+                                <img th:src="@{${ghUser.avatarUrl}}" alt="" class="circle responsive-img">
+                            </div>
+                            <div class="col s10">
+                                <h5 class="title" th:text="${ghUser.name}"></h5>
+                                <p>
+                                    <span th:text="${ghUser.bio}"></span>
+                                    <br/>
+                                    <span class="badge"
+                                          data-badge-caption="public gists"
+                                          th:text="${ghUser.publicGistsCount}"></span>
+                                </p>
                             </div>
                         </div>
                     </div>
-                    <div class="row" style="margin-bottom: 0px;">
-                        <div class="col s8">
-                            <div class="card">
-                                <div class="card-content">
-                                    <ul class="collection" th:each="gist: ${gists}">
-                                        <li class="collection-item avatar">
-
-                                            <span class="title" th:text="${#strings.abbreviate(gist.description, 30)}"></span>
-                                            <span class="new badge" th:text="${gist.commentsCount}"></span>
-
-                                            <p th:text="${gist.createdAt}"></p>
-                                            <p th:text="${gist.commentsCount}"></p>
-                                            <!--a href="#!" class="secondary-content"><i class="material-icons">grade</i></a-->
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col s4">
-                            <div class="row">
-                                <div class="demo-cards">
-                                    <div class="card">
-                                        <div class="card-content">
-                                            <ul class="collection" th:each="user: ${featuredUsers}">
-                                                <li class="collection-item avatar">
-                                                    <img src="images/yuna.jpg" alt="" class="circle">
-                                                    <span class="title">Title</span>
-                                                    <p>First Line <br>
-                                                        Second Line
-                                                    </p>
-                                                    <a href="#!" class="secondary-content"><i class="material-icons">grade</i></a>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <!--div class="card-action mdl-card__actions mdl-card--border">
-                                            <a href="#" class="mdl-button mdl-js-button mdl-js-ripple-effect">Read More</a>
-                                        </div-->
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <ul class="collection" th:each="user: ${featuredUsers}">
+                        <li class="collection-item avatar">
+                            <img th:src="@{${user.avatarUrl}}" alt="" class="circle responsive-img">
+                            <a class="title"
+                               th:href="@{${#strings.concat('https://github.com/', user.login)}}"
+                               th:text="${user.name}"></a>
+                            <p th:text="${user.bio}"></p>
+                            <span class="badge secondary-content" data-badge-caption="public gists"
+                                  th:text="${user.publicGistsCount}"></span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

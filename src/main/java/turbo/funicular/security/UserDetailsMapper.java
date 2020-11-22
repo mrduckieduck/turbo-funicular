@@ -67,7 +67,7 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
 
         final var userCommand = USERS_MAPPER.githubToCommand(user);
 
-        Map<String, Object> attributes = Map.of(
+        final Map<String, Object> attributes = Map.of(
             ACCESS_TOKEN_KEY, accessToken,
             "id", id,
             "ghUser", userCommand

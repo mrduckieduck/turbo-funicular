@@ -57,24 +57,28 @@ public class UiController {
     }
 
     protected Map<String, Object> model(Authentication authentication) {
-        final var users = usersService.randomTop(5l)
-            .stream()
-            .map(USERS_MAPPER::entityToCommand)
-            .collect(Collectors.toList());
-
         final var username = Optional.ofNullable(authentication)
             .map(Principal::getName)
             .orElse("");
+
+        final var users = usersService.randomTop(5l)
+            .stream()
+            .filter(user -> !user.getLogin().equals(username))
+            .map(USERS_MAPPER::entityToCommand)
+            .collect(Collectors.toList());
 
         final var roles = Optional.ofNullable(authentication)
             .map(auth -> auth.getAttributes().get("roles"))
             .map(strings -> (List<String>) strings)
             .orElse(List.of());
 
+        final var ghUser = (Objects.requireNonNull(authentication).getAttributes().get("ghUser"));
+
         return Map.of(
             "isLoggedIn", Objects.nonNull(authentication),
             "username", username,
             "featuredUsers", users,
+            "ghUser", ghUser,
             "gists", gitHubService.findGistsByUser(username),
             "roles", roles
         );
