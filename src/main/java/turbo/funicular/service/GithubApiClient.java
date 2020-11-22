@@ -42,8 +42,6 @@ public class GithubApiClient {
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
             return Optional.empty();
-        } finally {
-            gitHub.refreshCache();
         }
     }
 
