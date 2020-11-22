@@ -8,7 +8,6 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.views.View;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import turbo.funicular.service.GitHubService;
 import turbo.funicular.service.UsersService;
 
@@ -25,7 +24,6 @@ import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
-@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class UiController {
@@ -44,7 +42,6 @@ public class UiController {
     @Get("/getting-started")
     @Secured(IS_ANONYMOUS)
     public HttpResponse start(@Nullable Authentication authentication) {
-        log.warn("getting started...");
         if (Objects.nonNull(authentication)) {
             //if the user is authenticated, sent to home
             return HttpResponse.redirect(new URI("/home"));
@@ -60,7 +57,7 @@ public class UiController {
     }
 
     protected Map<String, Object> model(Authentication authentication) {
-        final var users = usersService.randomTop(5)
+        final var users = usersService.randomTop(5l)
             .stream()
             .map(USERS_MAPPER::entityToCommand)
             .collect(Collectors.toList());

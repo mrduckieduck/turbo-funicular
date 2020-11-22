@@ -1,10 +1,13 @@
 package turbo.funicular.service;
 
+import org.kohsuke.github.GHUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import turbo.funicular.entity.User;
 import turbo.funicular.web.UserCommand;
+
+import java.io.IOException;
 
 @Mapper
 public interface UsersMapper {
@@ -15,4 +18,9 @@ public interface UsersMapper {
     User commandToEntity(UserCommand command);
 
     UserCommand entityToCommand(User entity);
+
+    @Mapping(target = "lastUpdated", ignore = true)
+    @Mapping(source = "id", target = "ghId")
+    @Mapping(source = "publicGistCount", target = "publicGistsCount")
+    UserCommand githubToCommand(GHUser user) throws IOException;
 }

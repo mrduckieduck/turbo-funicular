@@ -74,6 +74,7 @@ class UsersServiceSpecs extends Specification {
 
     def 'should validate duplicated users on add operation'() {
         given: 'Add directly an user to the database, using the repository'
+            def userCount = userRepository.count()
             def userCommand = UserCommand.builder()
                 .ghId(1)
                 .login('foo')
@@ -81,7 +82,7 @@ class UsersServiceSpecs extends Specification {
             def user = UsersMapper.USERS_MAPPER.commandToEntity(userCommand)
             userRepository.save(user)
         expect: 'to have only one user'
-            userRepository.count() == 1
+            userRepository.count() == userCount + 1
         when: 'trying to add again the same user, this time using the service'
             usersService.addUser(userCommand)
         then: 'The service should raise an exception to prevent adding a duplicated user'
@@ -92,21 +93,22 @@ class UsersServiceSpecs extends Specification {
 
     def 'should verify the functionality in the random user selection'() {
         given: 'Create 5 new users'
+            def userCount = userRepository.count()
             5.times { usersService.addUser(fakeUser(it)) }
         expect: 'To have only the 5 new users'
-            userRepository.count() == 5
+            userRepository.count() == 5 + userCount
         when: 'ask for 10 random users'
             def randomTop = usersService.randomTop(10)
         then: 'return only the 5 existing users'
-            randomTop.size() == 5
+            randomTop.size() == 5 + userCount
         when: 'ask for 5 random users'
-            randomTop = usersService.randomTop(5)
+            randomTop = usersService.randomTop(5 + userCount)
         then: 'return only the 5 existing users'
-            randomTop.size() == 5
+            randomTop.size() == 5 + userCount
         when: 'create another 15 users'
             (5..19).each { usersService.addUser(fakeUser(it)) }
         then: 'verify we have 20 users'
-            userRepository.count() == 20
+            userRepository.count() == 20 + userCount
         when: 'ask for 15 random users'
             def count = 15
             randomTop = usersService.randomTop(count)
