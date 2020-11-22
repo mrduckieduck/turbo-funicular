@@ -1,6 +1,7 @@
 package turbo.funicular.security
 
 import com.github.javafaker.Faker
+import io.micronaut.security.event.LoginSuccessfulEvent
 import io.micronaut.security.oauth2.endpoint.token.response.TokenResponse
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import io.reactivex.Flowable
@@ -14,6 +15,8 @@ import javax.inject.Inject
 class UserDetailsMapperSpecs extends Specification {
     @Inject
     UserDetailsMapper userDetailsMapper
+    @Inject
+    LoginSuccessfulEventListener loginSuccessfulEventListener
     Faker faker = new Faker()
 
     def 'should test the failed cases'() {
@@ -46,5 +49,8 @@ class UserDetailsMapperSpecs extends Specification {
         expect:
             details.username == username
             details.getRoles() == UserDetailsMapper.ROLES
+            def event = new LoginSuccessfulEvent(details)
+            loginSuccessfulEventListener.onApplicationEvent(event)
     }
+
 }
