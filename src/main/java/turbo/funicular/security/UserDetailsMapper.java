@@ -11,9 +11,11 @@ import io.micronaut.security.oauth2.endpoint.token.response.TokenResponse;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Emitter;
 import io.reactivex.Flowable;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GitHubBuilder;
 import org.reactivestreams.Publisher;
+import turbo.funicular.github.GithubApiClient;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -24,9 +26,11 @@ import java.util.Map;
 @Slf4j
 @Named("github")
 @Singleton
+@RequiredArgsConstructor
 public class UserDetailsMapper implements OauthUserDetailsMapper {
 
     public static final String ROLE_GITHUB = "ROLE_GITHUB";
+    private final GithubApiClient apiClient;
 
     @Override
     public Publisher<UserDetails> createUserDetails(final TokenResponse tokenResponse) {
@@ -42,10 +46,21 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
     private void getUserDetails(final TokenResponse tokenResponse,
                                 final Emitter<AuthenticationResponse> responseEmitter) {
         try {
-            final var github = new GitHubBuilder().withJwtToken(tokenResponse.getAccessToken()).build();
+            final var github = new GitHubBuilder()
+                .withJwtToken(tokenResponse.getAccessToken())
+                .build();
             final var user = github.getMyself();
-            final var userDetails = new UserDetails(user.getLogin(), List.of(ROLE_GITHUB),
-                Map.of(OauthUserDetailsMapper.ACCESS_TOKEN_KEY, tokenResponse.getAccessToken()));
+            final var id = Long.valueOf(user.getId());
+            final var username = user.getLogin();
+            final var roles = List.of(ROLE_GITHUB);
+
+            Map<String, Object> attributes = Map.of(
+                ACCESS_TOKEN_KEY, tokenResponse.getAccessToken(),
+                "ghid", id
+            );
+
+            final var userDetails = new UserDetails(username, roles, attributes);
+
             responseEmitter.onNext(userDetails);
             responseEmitter.onComplete();
         } catch (IOException ex) {
