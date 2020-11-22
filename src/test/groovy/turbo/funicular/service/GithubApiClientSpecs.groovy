@@ -8,6 +8,9 @@ class GithubApiClientSpecs extends Specification {
     GithubApiClient githubApiClient = new GithubApiClient()
 
     void 'Test github operations for user #login'() {
+        expect:
+            githubApiClient.findGistsByUser(login)
+
         when:
             def user = githubApiClient.getUser(login)
         then: 'Check user info'
@@ -20,6 +23,7 @@ class GithubApiClientSpecs extends Specification {
                 it.ghId
                 it.publicGistsCount
             }
+
         where:
             login          | expectedName
             'mrduckieduck' | 'Daniel Castillo'
