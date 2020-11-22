@@ -106,7 +106,7 @@ class UsersServiceSpecs extends Specification {
         then: 'return only the 5 existing users'
             randomTop.size() == 5 + userCount
         when: 'create another 15 users'
-            (5..19).each { usersService.addUser(fakeUser(it)) }
+            (5..19).each { usersService.addUserIfMissing(fakeUser(it)) }
         then: 'verify we have 20 users'
             userRepository.count() == 20 + userCount
         when: 'ask for 15 random users'

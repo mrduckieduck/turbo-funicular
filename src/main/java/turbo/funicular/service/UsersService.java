@@ -63,7 +63,7 @@ public class UsersService {
         userRepository
             .findUserWith(userCommand.getLogin(), userCommand.getGhId())
             .ifPresentOrElse(
-                user -> log.info("User {} just logged in", user.getLogin()),
+                user -> log.info("User {} already on the database", user.getLogin()),
                 () -> add(userCommand));
     }
 }
