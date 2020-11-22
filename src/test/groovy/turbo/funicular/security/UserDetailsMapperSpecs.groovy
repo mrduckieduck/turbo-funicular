@@ -38,7 +38,7 @@ class UserDetailsMapperSpecs extends Specification {
     }
 
     //For some reason, IDK this feature method fails randomly on JDK 11
-    @Requires({ javaVersion > 11 })
+    @Requires({ javaVersion >= 11 })
     def 'should build the userDetails'() {
         given:
             def username = faker.name().username()
@@ -46,7 +46,7 @@ class UserDetailsMapperSpecs extends Specification {
             def myself = Stub(GHMyself)
 
             myself.getLogin() >> username
-            myself.getId() >> 1
+            myself.getId() >> 1l
 
             github.getMyself() >> myself
             def accessToken = 'fooo'
