@@ -38,7 +38,6 @@ class UserDetailsMapperSpecs extends Specification {
             def username = faker.name().username()
             def github = Stub(GitHub)
             def myself = Stub(GHMyself)
-            myself.getId() >> 1l
             myself.getLogin() >> username
 
             github.getMyself() >> myself
