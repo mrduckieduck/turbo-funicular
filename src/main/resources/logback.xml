@@ -9,7 +9,7 @@
         </encoder>
     </appender>
 
-    <logger name="io.micronaut.security" level="trace" >
+    <logger name="io.micronaut.security" level="warn" >
         <appender-ref ref="CONSOLE"/>
     </logger>
 
