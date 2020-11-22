@@ -4,6 +4,13 @@ micronaut:
 ---
 micronaut:
   security:
+    redirect:
+      login-success: /home
+      login-failure: /getting-started
+      logout: /getting-started
+      prior-to-login: true
+      unauthorized:
+        url: /getting-started
     authentication: cookie
     token:
       jwt:
