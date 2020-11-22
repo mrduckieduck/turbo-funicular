@@ -55,4 +55,13 @@ public class UsersService {
         return userRepository.randomUsers(count);
     }
 
+    public void loggedUser(String login, String accessToken) {
+        userRepository.findUserWith(login, 0l)
+            .ifPresentOrElse(user -> {
+                log.info("User {} just logged in", user.getLogin());
+            }, () -> {
+                //code for adding a user, wip
+                log.info("User {} not found", login);
+            });
+    }
 }
