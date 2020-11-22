@@ -62,7 +62,7 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
     @SneakyThrows
     protected UserDetails buildDetails(GitHub github, String accessToken) {
         final var user = github.getMyself();
-        final var id = user.getId();
+        final long id = user.getId();
         final var username = user.getLogin();
 
         final var userCommand = USERS_MAPPER.githubToCommand(user);
