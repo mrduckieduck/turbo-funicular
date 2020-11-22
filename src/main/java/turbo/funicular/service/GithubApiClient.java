@@ -20,12 +20,26 @@ public class GithubApiClient {
 
     private final GitHub gitHub;
 
-    public GithubApiClient() {
-        this.gitHub = fromEnvironment();
+    public static GithubApiClient create() {
+        try {
+            final var github = GitHubBuilder.fromEnvironment().build();
+            return new GithubApiClient(github);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
-    public GithubApiClient(final String accessToken) {
-        this.gitHub = createGithubInstance(accessToken);
+    public static GithubApiClient create(final String accessToken) {
+        try {
+            final var github = new GitHubBuilder().withJwtToken(accessToken).build();
+            return new GithubApiClient(github);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private GithubApiClient(final GitHub gitHub) {
+        this.gitHub = gitHub;
     }
 
     public Optional<User> getUser(final String login) {
@@ -86,22 +100,6 @@ public class GithubApiClient {
                 .build()
             )
             .collect(Collectors.toList());
-    }
-
-    private GitHub createGithubInstance(final String accessToken) {
-        try {
-            return new GitHubBuilder().withJwtToken(accessToken).build();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private GitHub fromEnvironment() {
-        try {
-            return GitHubBuilder.fromEnvironment().build();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
 }
