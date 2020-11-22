@@ -30,15 +30,12 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
 
     @Override
     public Publisher<UserDetails> createUserDetails(final TokenResponse tokenResponse) {
-        log.error("createUserDetails");
-        log.error(tokenResponse.toString());
         return Publishers.just(new UnsupportedOperationException("deprecated!"));
     }
 
     @Override
     public Publisher<AuthenticationResponse> createAuthenticationResponse(final TokenResponse tokenResponse,
                                                                           final State state) {
-        log.error("createAuthenticationResponse");
         return Flowable.create(emitter -> getUserDetails(tokenResponse, emitter), BackpressureStrategy.ERROR);
     }
 
