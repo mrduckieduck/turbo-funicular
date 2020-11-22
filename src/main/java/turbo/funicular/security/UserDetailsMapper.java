@@ -11,7 +11,9 @@ import io.micronaut.security.oauth2.endpoint.token.response.TokenResponse;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Emitter;
 import io.reactivex.Flowable;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.reactivestreams.Publisher;
 
@@ -27,8 +29,8 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 @Named("github")
 @Singleton
 public class UserDetailsMapper implements OauthUserDetailsMapper {
-
     public static final String ROLE_GITHUB = "ROLE_GITHUB";
+    public static final List<String> ROLES = List.of(ROLE_GITHUB);
 
     @Override
     public Publisher<UserDetails> createUserDetails(final TokenResponse tokenResponse) {
@@ -44,30 +46,33 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
     private void getUserDetails(final TokenResponse tokenResponse,
                                 final Emitter<AuthenticationResponse> responseEmitter) {
         try {
+            final var accessToken = tokenResponse.getAccessToken();
             final var github = new GitHubBuilder()
-                .withJwtToken(tokenResponse.getAccessToken())
+                .withJwtToken(accessToken)
                 .build();
 
-            final var user = github.getMyself();
-            final var id = Long.valueOf(user.getId());
-            final var username = user.getLogin();
-            final var roles = List.of(ROLE_GITHUB);
-
-            final var userCommand = USERS_MAPPER.githubToCommand(user);
-
-            Map<String, Object> attributes = Map.of(
-                ACCESS_TOKEN_KEY, tokenResponse.getAccessToken(),
-                "id", id,
-                "ghUser", userCommand
-            );
-
-            final var userDetails = new UserDetails(username, roles, attributes);
-
-            responseEmitter.onNext(userDetails);
+            responseEmitter.onNext(buildDetails(github, accessToken));
             responseEmitter.onComplete();
         } catch (IOException ex) {
             log.error(ex.getMessage(), ex);
             responseEmitter.onError(new AuthenticationException(new AuthenticationFailed(ex.getMessage())));
         }
+    }
+
+    @SneakyThrows
+    protected UserDetails buildDetails(GitHub github, String accessToken) {
+        final var user = github.getMyself();
+        final var id = Long.valueOf(user.getId());
+        final var username = user.getLogin();
+
+        final var userCommand = USERS_MAPPER.githubToCommand(user);
+
+        Map<String, Object> attributes = Map.of(
+            ACCESS_TOKEN_KEY, accessToken,
+            "id", id,
+            "ghUser", userCommand
+        );
+
+        return new UserDetails(username, ROLES, attributes);
     }
 }
