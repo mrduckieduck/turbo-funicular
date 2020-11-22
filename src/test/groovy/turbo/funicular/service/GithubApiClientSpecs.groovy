@@ -5,7 +5,7 @@ import spock.lang.Specification
 
 class GithubApiClientSpecs extends Specification {
 
-    GithubApiClient githubApiClient = new GithubApiClient()
+    GithubApiClient githubApiClient = GithubApiClient.create()
 
     void 'Test github operations for user #login'() {
         expect:
