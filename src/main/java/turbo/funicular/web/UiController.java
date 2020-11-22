@@ -5,7 +5,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.handlers.LogoutHandler;
 import io.micronaut.views.View;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -32,13 +31,11 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 public class UiController {
     private final UsersService usersService;
     private final GitHubService gitHubService;
-    private final LogoutHandler logoutHandler;
 
     @Get
     @View("index")
     @Secured(IS_ANONYMOUS)
     public HttpResponse index() {
-        log.info("home: " + logoutHandler.toString());
         return HttpResponse.ok();
     }
 
