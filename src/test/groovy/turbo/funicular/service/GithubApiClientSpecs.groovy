@@ -9,7 +9,19 @@ class GithubApiClientSpecs extends Specification {
 
     void 'Test github operations for user #login'() {
         expect:
-            githubApiClient.findGistsByUser(login)
+            githubApiClient.findGistsByUser(login).every {
+                it.createdAt
+                it.updatedAt
+                it.ghId
+                it.files.every {
+                    it.content
+                    it.rawUrl
+                    it.language
+                    it.mimeType
+                    it.filename
+                    it.size
+                }
+            }
 
         when:
             def user = githubApiClient.getUser(login)
