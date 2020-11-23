@@ -57,7 +57,7 @@ public class UiController {
     }
 
     @Get("/profile/{ghId}")
-    @View("featured_user")
+    @View("profile")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse featuredUser(final Long ghId) {
         return usersService.get(ghId)
