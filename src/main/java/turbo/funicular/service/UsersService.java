@@ -68,7 +68,7 @@ public class UsersService {
                 () -> add(userCommand));
     }
 
-    public Optional<User> get(final String login) {
+    public Optional<User> findUser(final String login) {
         return userRepository.findByLogin(login)
             .or(() -> {
                 Optional<User> userByLogin = gitHubService.findUserByLogin(login);
