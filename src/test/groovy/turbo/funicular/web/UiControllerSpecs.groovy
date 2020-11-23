@@ -66,13 +66,13 @@ class UiControllerSpecs extends Specification {
             usersService.addUser(userCommand)
 
         expect:
-            controller.featuredUser(userCommand.ghId).attributes.every {
+            controller.featuredUser(userCommand.login).attributes.every {
                 it.key in ['ghUser', 'gists']
                 it.value.class in [User, List]
             }
 
         when:
-            def notFound = controller.featuredUser(1L)
+            def notFound = controller.featuredUser('fooUsersServiceSpecs')
         then: 'should fail and return a 404'
             notFound.status().code == HttpStatus.NOT_FOUND.code
 

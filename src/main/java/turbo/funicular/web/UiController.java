@@ -56,11 +56,11 @@ public class UiController {
         return HttpResponse.ok(model(authentication));
     }
 
-    @Get("/profile/{ghId}")
+    @Get("/profile/{login}")
     @View("profile")
     @Secured(IS_AUTHENTICATED)
-    public HttpResponse featuredUser(final Long ghId) {
-        return usersService.get(ghId)
+    public HttpResponse featuredUser(final String login) {
+        return usersService.get(login)
             .map(user -> Map.of("ghUser", user, "gists", gitHubService.findGistsByUser(user.getLogin())))
             .map(HttpResponse::ok)
             .orElse(HttpResponse.notFound());
