@@ -1,3 +1,0 @@
-datasources:
-  default:
-    url: jdbc:postgresql://localhost:5433/funicular

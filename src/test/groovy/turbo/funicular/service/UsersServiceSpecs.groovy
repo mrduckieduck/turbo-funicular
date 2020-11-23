@@ -121,6 +121,13 @@ class UsersServiceSpecs extends Specification {
             uniqueUsers.size() == count
     }
 
+    def 'should get an user by its ghid'() {
+        given:
+            def id = userRepository.count() + 1L
+            usersService.addUser(fakeUser(id))
+        expect:
+            usersService.get(id).filter { it.ghId == id }.present
+    }
 
     static UserCommand fakeUser(Long id) {
         def faker = new Faker()

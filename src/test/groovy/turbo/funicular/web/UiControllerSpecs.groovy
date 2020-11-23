@@ -1,10 +1,12 @@
 package turbo.funicular.web
 
+import io.micronaut.http.HttpStatus
 import io.micronaut.security.authentication.Authentication
 import io.micronaut.security.authentication.DefaultAuthentication
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import org.kohsuke.github.GHUser
 import spock.lang.Specification
+import turbo.funicular.entity.User
 import turbo.funicular.service.GitHubService
 import turbo.funicular.service.UsersService
 
@@ -49,5 +51,30 @@ class UiControllerSpecs extends Specification {
             def response = controller.start(authentication)
         then:
             response
+    }
+
+    def 'should test the featured_user page'() {
+        given:
+            def controller = new UiController(usersService, gitHubService)
+
+        and: 'Inserting couple dummy users'
+            def userCommand = UserCommand.builder()
+                .ghId(12345L)
+                .name('username')
+                .login("foo-login")
+                .build()
+            usersService.addUser(userCommand)
+
+        expect:
+            controller.featuredUser(userCommand.ghId).attributes.every {
+                it.key in ['ghUser', 'gists']
+                it.value.class in [User, List]
+            }
+
+        when:
+            def notFound = controller.featuredUser(1L)
+        then: 'should fail and return a 404'
+            notFound.status().code == HttpStatus.NOT_FOUND.code
+
     }
 }

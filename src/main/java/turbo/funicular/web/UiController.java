@@ -56,6 +56,16 @@ public class UiController {
         return HttpResponse.ok(model(authentication));
     }
 
+    @Get("/ghUser/{ghId}")
+    @View("featured_user")
+    @Secured(IS_AUTHENTICATED)
+    public HttpResponse featuredUser(final Long ghId) {
+        return usersService.get(ghId)
+            .map(user -> Map.of("ghUser", user, "gists", gitHubService.findGistsByUser(user.getLogin())))
+            .map(HttpResponse::ok)
+            .orElse(HttpResponse.notFound());
+    }
+
     protected Map<String, Object> model(Authentication authentication) {
         final var username = Optional.ofNullable(authentication)
             .map(Principal::getName)
