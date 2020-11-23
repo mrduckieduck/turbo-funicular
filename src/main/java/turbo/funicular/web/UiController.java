@@ -69,7 +69,6 @@ public class UiController {
 
         final var roles = Optional.ofNullable(authentication)
             .map(auth -> auth.getAttributes().get("roles"))
-            .map(strings -> (List<String>) strings)
             .orElse(List.of());
 
         final var ghUser = Optional.ofNullable(authentication)
