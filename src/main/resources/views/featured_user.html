@@ -41,21 +41,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="divider"></div>
-                <div class="section">
-                    <ul class="collection" th:each="user: ${featuredUsers}">
-                        <li class="collection-item avatar">
-                            <img th:src="@{${user.avatarUrl}}" alt="" class="circle responsive-img">
-                            <a class="title"
-                               th:href="@{/ghUser/{ghId}(ghId=${user.ghId})}"
-                               th:text="${user.name}"
-                               ></a>
-                            <p th:text="${user.bio}"></p>
-                            <span class="badge secondary-content" data-badge-caption="public gists"
-                                  th:text="${user.publicGistsCount}"></span>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>

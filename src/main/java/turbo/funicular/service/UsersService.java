@@ -66,4 +66,8 @@ public class UsersService {
                 user -> log.info("User {} already on the database", user.getLogin()),
                 () -> add(userCommand));
     }
+
+    public Optional<User> get(final Long ghId) {
+        return userRepository.findByGhId(ghId);
+    }
 }
