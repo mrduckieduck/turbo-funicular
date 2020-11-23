@@ -60,7 +60,7 @@ public class UiController {
     @View("profile")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse featuredUser(final String login) {
-        return usersService.get(login)
+        return usersService.findUser(login)
             .map(user -> Map.of("ghUser", user, "gists", gitHubService.findGistsByUser(user.getLogin())))
             .map(HttpResponse::ok)
             .orElse(HttpResponse.notFound());

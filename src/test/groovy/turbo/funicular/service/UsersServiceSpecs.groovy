@@ -127,7 +127,7 @@ class UsersServiceSpecs extends Specification {
             def user = fakeUser(id)
             usersService.addUser(user)
         expect:
-            usersService.get(user.login).filter { it.ghId == id }.present
+            usersService.findUser(user.login).filter { it.ghId == id }.present
     }
 
     static UserCommand fakeUser(Long id) {
