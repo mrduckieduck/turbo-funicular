@@ -53,7 +53,7 @@ class UiControllerSpecs extends Specification {
             response
     }
 
-    def 'should test the featured_user page'() {
+    def 'should test the profile page'() {
         given:
             def controller = new UiController(usersService, gitHubService)
 
