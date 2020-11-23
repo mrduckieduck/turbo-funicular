@@ -56,7 +56,7 @@ public class UiController {
         return HttpResponse.ok(model(authentication));
     }
 
-    @Get("/ghUser/{ghId}")
+    @Get("/profile/{ghId}")
     @View("featured_user")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse featuredUser(final Long ghId) {
