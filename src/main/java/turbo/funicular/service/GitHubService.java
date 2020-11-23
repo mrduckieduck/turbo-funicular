@@ -20,6 +20,6 @@ public class GitHubService {
     }
 
     public Optional<User> findUserByLogin(final String login) {
-        return GithubApiClient.create().getUser(login);
+        return GithubApiClient.create().findUser(login);
     }
 }

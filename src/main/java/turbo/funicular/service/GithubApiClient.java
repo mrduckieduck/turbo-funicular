@@ -42,7 +42,7 @@ public class GithubApiClient {
         this.gitHub = gitHub;
     }
 
-    public Optional<User> getUser(final String login) {
+    public Optional<User> findUser(final String login) {
         try {
             final var ghUser = gitHub.getUser(login);
             final var user = new User();
