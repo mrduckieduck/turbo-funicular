@@ -24,6 +24,7 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 public class UsersService {
     private final UserRepository userRepository;
     private final ValidationService validationService;
+    private final GitHubService gitHubService;
 
     public Optional<User> addUser(@NotNull UserCommand command) {
         validationService.validate(command);
@@ -67,7 +68,12 @@ public class UsersService {
                 () -> add(userCommand));
     }
 
-    public Optional<User> get(final Long ghId) {
-        return userRepository.findByGhId(ghId);
+    public Optional<User> get(final String login) {
+        return userRepository.findByLogin(login)
+            .or(() -> {
+                Optional<User> userByLogin = gitHubService.findUserByLogin(login);
+                userByLogin.ifPresent(userRepository::save);
+                return userByLogin;
+            });
     }
 }
