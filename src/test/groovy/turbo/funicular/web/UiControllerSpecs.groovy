@@ -9,6 +9,7 @@ import turbo.funicular.service.GitHubService
 import turbo.funicular.service.UsersService
 
 import javax.inject.Inject
+import java.time.LocalDateTime
 
 @MicronautTest
 class UiControllerSpecs extends Specification {
@@ -26,17 +27,15 @@ class UiControllerSpecs extends Specification {
 
         and: 'Inserting couple dummy users'
             def user = UserCommand.builder()
+                .ghId(2L)
+                .name('user name')
                 .login('foo-login')
-                .avatarUrl('avatar-url')
-                .bio('bio')
                 .build()
 
             usersService.addUser(user)
 
-        when:
-            def model = controller.model(authentication)
-        then:
-            model
+        expect:
+            controller.model(authentication)
     }
 
     def 'should test the start page for null auth'() {
