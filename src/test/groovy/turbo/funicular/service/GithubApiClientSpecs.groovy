@@ -24,7 +24,7 @@ class GithubApiClientSpecs extends Specification {
             }
 
         when:
-            def user = githubApiClient.getUser(login)
+            def user = githubApiClient.findUser(login)
         then: 'Check user info'
             user.present
             with(user.get()) {
