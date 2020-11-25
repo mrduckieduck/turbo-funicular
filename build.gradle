@@ -44,7 +44,7 @@ dependencies {
     implementation("io.micronaut.flyway:micronaut-flyway:${ micronautFlywayVersion }")
     implementation("io.micronaut.sql:micronaut-jdbc-hikari:${ micronautJdbcHikari }")
     implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
-    implementation("org.kohsuke:github-api:1.116")
+    implementation("org.kohsuke:github-api:1.117")
 
     implementation("io.micronaut.security:micronaut-security-jwt")
     implementation("io.micronaut.security:micronaut-security-oauth2")
