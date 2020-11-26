@@ -47,7 +47,7 @@
                         <li class="collection-item avatar">
                             <img th:src="@{${user.avatarUrl}}" alt="" class="circle responsive-img">
                             <a class="title"
-                               th:href="@{/profile/{ghId}(ghId=${user.ghId})}"
+                               th:href="@{/profile/{login}(login=${user.login})}"
                                th:text="${user.name}"
                                ></a>
                             <p th:text="${user.bio}"></p>
