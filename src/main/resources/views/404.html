@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layoutFile :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{not-found.page.title}"></title>
+</head>
+<body>
+<section>
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <h1 th:text="#{not-found.page.title}" class="header center-align"></h1>
+                <div class="card">
+                    <div class="card-image">
+                        <img src="https://media.giphy.com/media/QhCAwDXZ0BltK/giphy.gif"
+                             class="center-align">
+                    </div>
+                    <div class="card-stacked">
+                        <div class="card-content"></div>
+                        <div class="card-action">
+                            <a class="waves-effect waves-teal btn-flat btn-large"
+                               th:href="@{/home}"
+                               th:text="#{not-found.back.button.label}"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -71,7 +71,7 @@ public class UiController {
             .map(Principal::getName)
             .orElse("");
 
-        final var users = usersService.randomTop(5l)
+        final var users = usersService.randomTop(5L)
             .stream()
             .filter(user -> !user.getLogin().equals(username))
             .map(USERS_MAPPER::entityToCommand)
