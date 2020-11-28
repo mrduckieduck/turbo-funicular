@@ -10,7 +10,8 @@ workflows:
           context: turbo-funicular-prod
           filters:
             branches:
-              only: main
+              only:
+                - main
 
 jobs:
   build:
@@ -70,7 +71,8 @@ jobs:
       docker:
         - image: circleci/buildpack-deps:stretch
       steps:
-        - setup_remote_docker
+        - setup_remote_docker:
+            version: 19.03.13
         - run:
             name: Publish Docker Image to Docker Hub
             command: |
