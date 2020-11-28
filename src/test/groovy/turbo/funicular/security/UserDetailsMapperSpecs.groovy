@@ -47,8 +47,8 @@ class UserDetailsMapperSpecs extends Specification {
 
             myself.getLogin() >> username
             myself.getId() >> 1l
-
             github.getMyself() >> myself
+
             def accessToken = 'fooo'
             def details = userDetailsMapper.buildDetails(github, accessToken)
         expect:
