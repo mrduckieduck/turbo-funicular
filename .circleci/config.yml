@@ -9,7 +9,7 @@ workflows:
       - publish-image:
           context: turbo-funicular-prod
           filters:
-            branch:
+            branches:
               only: main
 
 jobs:
