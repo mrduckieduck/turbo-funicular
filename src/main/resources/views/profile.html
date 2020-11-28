@@ -4,6 +4,17 @@
     <title th:text="#{home.page.title}"></title>
 </head>
 <body>
+<section>
+    <div id="gist-comment" class="modal">
+        <div class="modal-content">
+            <h4 id="gistName"></h4>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn"
+               th:text="#{gist.comment.btn.label}"></a>
+        </div>
+    </div>
+</section>
 <section th:if="${ghUser == null}">
     <div class="container">
         <div class="row">
@@ -19,7 +30,8 @@
                         <div class="card-action">
                             <a class="waves-effect waves-teal btn-flat btn-large"
                                th:href="@{/home}"
-                               th:text="#{not-found.back.button.label}"></a>
+                               th:text="#{not-found.back.button.label}"
+                            ></a>
                         </div>
                     </div>
                 </div>
@@ -39,7 +51,11 @@
                                th:href="@{${#strings.concat('https://gist.github.com/', username, '/', gist.ghId)}}"
                                th:text="${not #strings.isEmpty(gist.description)}? ${#strings.abbreviate(gist.description, 30)} : ${#strings.abbreviate(gist.files[0].filename, 30)}"></a>
                             <p th:text="${gist.createdAt}"></p>
-                            <span class="secondary-content new badge" th:text="${gist.commentsCount}"></span>
+                            <span class="secondary-content new badge modal-trigger"
+                                  data-target="gist-comment"
+                                  th:data-ghId="${gist.ghId}"
+                                  th:data-description="${gist.description}"
+                                  th:text="${gist.commentsCount}"></span>
                         </li>
                     </ul>
                 </div>
