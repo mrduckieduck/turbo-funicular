@@ -6,6 +6,11 @@ workflows:
     jobs:
       - build:
           context: turbo-funicular
+      - publish-image:
+          context: turbo-funicular-prod
+          filters:
+            branch:
+              only: main
 jobs:
   build:
     #paralellism: 2
@@ -58,3 +63,15 @@ jobs:
           path: build/test-results/test
       - codecov/upload:
           file: build/reports/jacoco/test/jacocoTestReport.xml
+  publish-image:
+    environment:
+      IMAGE_NAME: docker.pkg.github.com/mrduckieduck/turbo-funicular/webapp:0.0.1
+      docker:
+        - image: circleci/buildpack-deps:stretch
+      steps:
+        - setup_remote_docker
+        - run:
+            name: Publish Docker Image to Docker Hub
+            command: |
+              echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+              docker push $IMAGE_NAME:latest
