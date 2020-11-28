@@ -8,6 +8,8 @@ workflows:
           context: turbo-funicular
       - publish-image:
           context: turbo-funicular-prod
+          requires:
+            - build
           #filters:
           #  branches:
           #    only:
