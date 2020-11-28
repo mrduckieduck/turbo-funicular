@@ -66,15 +66,15 @@ jobs:
       - codecov/upload:
           file: build/reports/jacoco/test/jacocoTestReport.xml
   publish-image:
+    docker:
+      - image: circleci/buildpack-deps:stretch
     environment:
       IMAGE_NAME: docker.pkg.github.com/mrduckieduck/turbo-funicular/webapp:0.0.1
-      docker:
-        - image: circleci/buildpack-deps:stretch
-      steps:
-        - setup_remote_docker:
-            version: 19.03.13
-        - run:
-            name: Publish Docker Image to Docker Hub
-            command: |
-              echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-              docker push $IMAGE_NAME:latest
+    steps:
+      - setup_remote_docker:
+        version: 19.03.13
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+            docker push $IMAGE_NAME:latest
