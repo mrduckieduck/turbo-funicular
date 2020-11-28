@@ -10,10 +10,10 @@ workflows:
           context: turbo-funicular-prod
           requires:
             - build
-          #filters:
-          #  branches:
-          #    only:
-          #      - main
+          filters:
+            branches:
+              only:
+                - main
 
 jobs:
   build:
@@ -79,4 +79,4 @@ jobs:
           name: Publish Docker Image to Docker Hub
           command: |
             echo "$DOCKERHUB_PASSWORD" | docker login https://docker.pkg.github.com -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push $IMAGE_NAME:latest
+            docker push "${IMAGE_NAME}"
