@@ -72,7 +72,7 @@ jobs:
       IMAGE_NAME: docker.pkg.github.com/mrduckieduck/turbo-funicular/webapp:0.0.1
     steps:
       - setup_remote_docker:
-        version: 19.03.13
+          version: 19.03.13
       - run:
           name: Publish Docker Image to Docker Hub
           command: |
