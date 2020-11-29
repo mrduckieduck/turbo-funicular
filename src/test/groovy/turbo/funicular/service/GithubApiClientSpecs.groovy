@@ -75,7 +75,7 @@ class GithubApiClientSpecs extends Specification {
             comments.every {
                 it.body
                 it.createdAt
-                it.owner.login == 'mrduckieduck'
+                it.owner.login
             }
 
     }
