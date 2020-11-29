@@ -35,7 +35,10 @@
                 <div class="section">
                     <ul class="collection" th:each="gist: ${gists}">
                         <li class="collection-item avatar">
-                            <i class="material-icons circle">code</i>
+
+                            <a th:href="@{/profile/{login}/gist/{gistId}(gistId=${gist.ghId},login=${ghUser.login})}">
+                                <i class="material-icons circle">code</i>
+                            </a>
                             <a class="title"
                                th:href="@{/profile/{login}/gist/{gistId}(gistId=${gist.ghId},login=${ghUser.login})}"
                                th:text="${not #strings.isEmpty(gist.description)}? ${#strings.abbreviate(gist.description, 30)} : ${#strings.abbreviate(gist.files[0].filename, 30)}"></a>
