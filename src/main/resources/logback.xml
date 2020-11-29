@@ -9,11 +9,11 @@
         </encoder>
     </appender>
 
-    <logger name="io.netty" level="warn" >
+    <logger name="io.netty" level="debug" >
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="io.micronaut" level="warn" >
+    <logger name="io.micronaut" level="debug" >
         <appender-ref ref="STDOUT"/>
     </logger>
 
