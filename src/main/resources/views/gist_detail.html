@@ -61,7 +61,10 @@
                 <div class="section">
                     <ul class="collection" th:each="comment: ${topComments}">
                         <li class="collection-item avatar">
-                            <img th:src="@{${comment.owner.avatarUrl}}" alt="" class="circle responsive-img" src="">
+
+                            <a th:href="@{/profile/{login}(login=${comment.owner.login})}">
+                                <img th:src="@{${comment.owner.avatarUrl}}" alt="" class="circle responsive-img" src="">
+                            </a>
                             <a class="title"
                                th:href="@{/profile/{login}(login=${comment.owner.login})}"
                                th:text="${#strings.isEmpty(comment.owner.name)}? ${comment.owner.login}: ${comment.owner.name}"></a>
