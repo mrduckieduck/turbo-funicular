@@ -5,10 +5,16 @@ plugins {
     id "idea"
     id "com.github.ben-manes.versions" version "0.36.0"
     id 'jacoco'
+    id 'com.google.cloud.tools.jib' version '2.6.0'
 }
 
 version "0.0.1"
 group "turbo.funicular"
+
+ext {
+    registryUsername = System.getenv()['DOCKERHUB_USER'] ?: ''
+    registryPassword = System.getenv()['DOCKERHUB_PASS'] ?: ''
+}
 
 repositories {
     mavenCentral()
@@ -90,8 +96,38 @@ test {
     systemProperties "geb.build.reportsDir": "$reportsDir/geb"
 }
 
+//This config seems not be working well, that's the reason we are preferring for now jib instead this functionality from Micronaut Gradle plugin
+docker {
+    registryCredentials {
+        username = registryUsername
+        password = registryPassword
+    }
+}
+
+dockerfile {
+    args('-Xmx128m')
+}
+
 dockerBuild {
-    images = ["docker.pkg.github.com/mrduckieduck/turbo-funicular/webapp:$project.version".toLowerCase()]
+    images = ["$imageOwner/$imageName:$project.version".toLowerCase()]
+}
+
+jib {
+    from {
+        image = 'openjdk:15-alpine'
+    }
+    to {
+        image = "$imageOwner/$imageName:$project.version".toLowerCase()
+        auth {
+            username = registryUsername
+            password = registryPassword
+        }
+    }
+    container {
+        jvmFlags = ['-Xmx128m', '-Xdebug']
+        ports = ['8080']
+        format = 'OCI'
+    }
 }
 
 jacoco {
@@ -107,7 +143,7 @@ jacocoTestReport {
 
 jacocoTestCoverageVerification {
     violationRules {
-        rule  {
+        rule {
             limit {
                 minimum = 0.3
             }

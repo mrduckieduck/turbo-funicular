@@ -55,7 +55,10 @@ jobs:
           command: gradle test jacocoTestReport
       - run:
           name: Generate OCI image
-          command: gradle dockerBuild
+          command: gradle jibDockerBuild
+      - run:
+          name: Publish OCI image
+          command: gradle jib
       - save_cache:
           paths:
             - ~/.gradle
