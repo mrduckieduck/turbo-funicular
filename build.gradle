@@ -15,6 +15,7 @@ ext {
     registryUsername = System.getenv()['DOCKERHUB_USER'] ?: ''
     registryPassword = System.getenv()['DOCKERHUB_PASS'] ?: ''
     imageTagSuffix = System.getenv()['CIRCLE_BUILD_NUM'] ?: 'snapshot'
+    javaMem = '-Xmx128m'
 }
 
 repositories {
