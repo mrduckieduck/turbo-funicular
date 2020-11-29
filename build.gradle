@@ -106,7 +106,7 @@ docker {
 }
 
 dockerfile {
-    args('-Xmx128m')
+    args($javaMem)
 }
 
 dockerBuild {
@@ -125,7 +125,7 @@ jib {
         }
     }
     container {
-        jvmFlags = ['-Xmx128m', '-Xdebug']
+        jvmFlags = [$javaMem, '-Xdebug']
         ports = ['8080']
         format = 'OCI'
     }
