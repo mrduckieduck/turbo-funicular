@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static io.vavr.control.Try.run;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
@@ -45,18 +46,27 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
 
     private void getUserDetails(final TokenResponse tokenResponse,
                                 final Emitter<AuthenticationResponse> responseEmitter) {
-        try {
-            final var accessToken = tokenResponse.getAccessToken();
-            final var github = new GitHubBuilder()
-                .withJwtToken(accessToken)
-                .build();
+        run(()
+            -> handleToken(tokenResponse, responseEmitter))
+            .recover(IOException.class,
+                ex -> authenticationError(responseEmitter, ex))
+            .get();
+    }
 
-            responseEmitter.onNext(buildDetails(github, accessToken));
-            responseEmitter.onComplete();
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            responseEmitter.onError(new AuthenticationException(new AuthenticationFailed(ex.getMessage())));
-        }
+    private Void authenticationError(Emitter<AuthenticationResponse> responseEmitter, IOException ex) {
+        log.error(ex.getMessage(), ex);
+        responseEmitter.onError(new AuthenticationException(new AuthenticationFailed(ex.getMessage())));
+        return null;
+    }
+
+    private void handleToken(TokenResponse tokenResponse, Emitter<AuthenticationResponse> responseEmitter) throws IOException {
+        final var accessToken = tokenResponse.getAccessToken();
+        final var github = new GitHubBuilder()
+            .withJwtToken(accessToken)
+            .build();
+
+        responseEmitter.onNext(buildDetails(github, accessToken));
+        responseEmitter.onComplete();
     }
 
     @SneakyThrows
