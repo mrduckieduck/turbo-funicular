@@ -49,7 +49,8 @@
                           th:object="${newComment}">
                         <div class="row">
                             <div class="input-field col s12">
-                                <textarea id="body" class="materialize-textarea" th:value="*{body}" name="body"></textarea>
+                                <textarea id="body" class="materialize-textarea validate" th:value="*{body}" name="body"
+                                          required="" aria-required="true"></textarea>
                                 <label for="body" th:text="#{gist.new.comment.label}"></label>
                                 <button class="btn waves-effect waves-light" type="submit"
                                         th:text="#{gist.comment.btn.add}"></button>
@@ -74,6 +75,12 @@
             </div>
         </div>
     </div>
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            $('select').material_select();
+            $("select[required]").css({display: "inline", height: 0, padding: 0, width: 0});
+        });
+    </script>
 </section>
 </body>
 </html>

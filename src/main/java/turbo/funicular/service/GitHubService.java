@@ -39,7 +39,7 @@ public class GitHubService {
 
     public List<GistComment> topGistComments(final String ghId) {
         return createApiClientInstance()
-            .map(apiClient -> apiClient.topGistComments(ghId, 5))
+            .map(apiClient -> apiClient.topGistComments(ghId, 20))
             .orElse(List.of());
     }
 
