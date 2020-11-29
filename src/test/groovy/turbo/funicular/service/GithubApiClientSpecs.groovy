@@ -75,7 +75,7 @@ class GithubApiClientSpecs extends Specification {
             comments.every {
                 it.body
                 it.createdAt
-                it.login == 'mrduckieduck'
+                it.owner.login == 'mrduckieduck'
             }
 
     }
@@ -87,12 +87,14 @@ class GithubApiClientSpecs extends Specification {
             def gistId = 'fooo'
 
         and:
-            gistsService.createComment(_ as String, _ as String) >>  Stub(Comment) {
+            gistsService.createComment(_ as String, _ as String) >> Stub(Comment) {
                 it.id >> 1l
                 it.body >> 'body'
                 it.createdAt >> new Date()
                 it.getUser() >> Stub(User) {
                     it.login >> 'mrduckieduck'
+                    it.avatarUrl >> 'avatar-url'
+                    it.name >> 'name'
                 }
             }
             gistsService.deleteComment(1l)
@@ -106,7 +108,9 @@ class GithubApiClientSpecs extends Specification {
             verifyAll(newComment.get()) {
                 it.body == 'body'
                 it.createdAt
-                it.login == 'mrduckieduck'
+                it.owner.login == 'mrduckieduck'
+                it.owner.avatarUrl == 'avatar-url'
+                it.owner.name == 'name'
             }
 
         when:
