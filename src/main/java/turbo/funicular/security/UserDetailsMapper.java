@@ -13,11 +13,9 @@ import io.reactivex.Emitter;
 import io.reactivex.Flowable;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.egit.github.core.client.GitHubClient;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.reactivestreams.Publisher;
-import turbo.funicular.service.GithubApiClient;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
