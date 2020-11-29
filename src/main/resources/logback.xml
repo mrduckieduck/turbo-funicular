@@ -9,6 +9,8 @@
         </encoder>
     </appender>
 
+    <logger name="io.netty.handler.logging" level="TRACE"/>
+
     <logger name="io.micronaut.security" level="warn" >
         <appender-ref ref="CONSOLE"/>
     </logger>
