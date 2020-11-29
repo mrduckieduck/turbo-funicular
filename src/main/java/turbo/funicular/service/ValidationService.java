@@ -2,12 +2,18 @@ package turbo.funicular.service;
 
 import io.micronaut.context.MessageSource;
 import io.micronaut.validation.validator.Validator;
+import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.Set;
+
+import static io.vavr.API.*;
+import static io.vavr.Predicates.is;
+import static io.vavr.control.Either.left;
+import static io.vavr.control.Either.right;
 
 @Singleton
 @RequiredArgsConstructor
@@ -21,7 +27,7 @@ public class ValidationService {
     }
 
     public <T> T validate(T toValidate, String messageCode) {
-        Set<ConstraintViolation<Object>> violations = validator.validate(toValidate);
+        Set<ConstraintViolation<T>> violations = validator.validate(toValidate);
         if (!violations.isEmpty()) {
             String message = messageSource
                 .getMessage(messageCode, messageContext)
@@ -31,4 +37,14 @@ public class ValidationService {
 
         return toValidate;
     }
+
+    public <T> Either<Set<ConstraintViolation<T>>, T> validateFoo(T toValidate) {
+        final var violations = validator.validate(toValidate);
+
+        return Match(violations.isEmpty()).of(
+            Case($(is(true)), right(toValidate)),
+            Case($(is(false)), left(violations))
+        );
+    }
+
 }
