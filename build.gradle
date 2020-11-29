@@ -14,6 +14,7 @@ group "turbo.funicular"
 ext {
     registryUsername = System.getenv()['DOCKERHUB_USER'] ?: ''
     registryPassword = System.getenv()['DOCKERHUB_PASS'] ?: ''
+    imageTagSuffix = System.getenv()['CIRCLE_BUILD_NUM'] ?: 'snapshot'
 }
 
 repositories {
@@ -117,7 +118,7 @@ jib {
         image = 'openjdk:15-alpine'
     }
     to {
-        image = "$imageOwner/$imageName:$project.version".toLowerCase()
+        image = "$imageOwner/$imageName:${ project.version }_${ imageTagSuffix }".toLowerCase()
         auth {
             username = registryUsername
             password = registryPassword
