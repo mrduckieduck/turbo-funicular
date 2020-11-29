@@ -19,7 +19,8 @@
                         <div class="card-action">
                             <a class="waves-effect waves-teal btn-flat btn-large"
                                th:href="@{/home}"
-                               th:text="#{not-found.back.button.label}"></a>
+                               th:text="#{not-found.back.button.label}"
+                            ></a>
                         </div>
                     </div>
                 </div>
@@ -36,10 +37,11 @@
                         <li class="collection-item avatar">
                             <i class="material-icons circle">code</i>
                             <a class="title"
-                               th:href="@{${#strings.concat('https://gist.github.com/', username, '/', gist.ghId)}}"
+                               th:href="@{/profile/{login}/gist/{gistId}(gistId=${gist.ghId},login=${ghUser.login})}"
                                th:text="${not #strings.isEmpty(gist.description)}? ${#strings.abbreviate(gist.description, 30)} : ${#strings.abbreviate(gist.files[0].filename, 30)}"></a>
                             <p th:text="${gist.createdAt}"></p>
-                            <span class="secondary-content new badge" th:text="${gist.commentsCount}"></span>
+                            <span class="secondary-content new badge modal-trigger"
+                                  th:text="${gist.commentsCount}"></span>
                         </li>
                     </ul>
                 </div>

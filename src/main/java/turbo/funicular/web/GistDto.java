@@ -17,5 +17,6 @@ public class GistDto {
     private final String ghId;
     private final LocalDateTime updatedAt;
     private final Boolean publicGist;
+    private final String owner;
     private final List<GistContent> files;
 }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layoutFile :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{gist-detail.page.title}"></title>
+</head>
+<body>
+<section th:if="${gist == null}">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <h1 th:text="#{not-found.page.title}" class="header center-align"></h1>
+                <div class="card">
+                    <div class="card-image">
+                        <img src="https://media.giphy.com/media/QhCAwDXZ0BltK/giphy.gif"
+                             class="center-align">
+                    </div>
+                    <div class="card-stacked">
+                        <div class="card-content"></div>
+                        <div class="card-action">
+                            <a class="waves-effect waves-teal btn-flat btn-large"
+                               th:href="@{/profile/${ghUser.login}}"
+                               th:text="#{not-found.back.button.label}"
+                            ></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section th:unless="${gist == null}">
+    <div class="container">
+        <div class="row">
+            <h3>
+                <a th:href="@{#string.concat('https://gist.github.com/', username, '/', gist.ghId)}"
+                   th:text="${not #strings.isEmpty(gist.description)}? ${#strings.abbreviate(gist.description, 30)} : ${#strings.abbreviate(gist.files[0].filename, 30)}"></a>
+            </h3>
+            <div class="col s6">
+                <div class="section">
+                    <script th:src="${#strings.concat('https://gist.github.com/', login, '/', gist.ghId, '.js')}"></script>
+                </div>
+            </div>
+            <div class="col s6 m6">
+                <h4 th:text="#{gist.comments.label}"></h4>
+                <div class="section">
+                    <form class="col s12" action="#"
+                          method="post">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <textarea id="textarea" class="materialize-textarea" th:field=""></textarea>
+                                <label for="textarea" th:text="#{gist.new.comment.label}"></label>
+                                <button class="btn waves-effect waves-light" type="submit" name="action"
+                                        th:text="#{gist.comment.btn.add}"></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="divider"></div>
+                <div class="section">
+                    <ul class="collection" th:each="comment: ${topComments}">
+                        <li class="collection-item avatar">
+                            <i class="material-icons circle">comment</i>
+                            <a class="title"
+                               th:href="@{/profile/{login}(login=${comment.login})}"
+                               th:text="${comment.login}"></a>
+                            <p th:text="${comment.body}"></p>
+                            <span class="secondary-content badge"
+                                  th:text="${comment.createdAt}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
