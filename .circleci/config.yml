@@ -78,9 +78,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        keys:
-          - v1-dependencies-{{ checksum "build.gradle" }}
-          - v1-dependencies-
+          keys:
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            - v1-dependencies-
       - setup_remote_docker:
           version: 19.03.13
       - run:
