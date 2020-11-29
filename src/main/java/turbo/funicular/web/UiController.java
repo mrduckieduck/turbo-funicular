@@ -3,6 +3,7 @@ package turbo.funicular.web;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.views.View;
@@ -64,6 +65,26 @@ public class UiController {
             .map(user -> Map.of("ghUser", user, "gists", gitHubService.findGistsByUser(user.getLogin())))
             .map(HttpResponse::ok)
             .orElse(HttpResponse.notFound());
+    }
+
+    @Get("/profile/{login}/gist/{gistId}")
+    @View("gist_detail")
+    @Secured(IS_AUTHENTICATED)
+    public HttpResponse gist(final String login, final String gistId) {
+        return gitHubService.findGistById(gistId)
+            .filter(gist -> gist.getOwner().equals(login))
+            .map(foundGist -> Map.of("gist", foundGist,
+                "username", login,
+                "topComments", gitHubService.topGistComments(gistId)))
+            .map(HttpResponse::ok)
+            .orElse(HttpResponse.notFound());
+    }
+
+    @Post("/profile/{login}/gist/{gistId}")
+    @Secured(IS_AUTHENTICATED)
+    public HttpResponse addCommentToGist(final String login, final String gistId, final Map<String, String> formBody) {
+
+        return HttpResponse.ok();
     }
 
     protected Map<String, Object> model(Authentication authentication) {

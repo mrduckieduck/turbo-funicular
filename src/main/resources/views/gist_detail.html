@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" th:replace="~{layoutFile :: layout(~{::title}, ~{::section})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="#{gist-detail.page.title}"></title>
+</head>
+<body>
+<section th:if="${gist == null}">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <h1 th:text="#{not-found.page.title}" class="header center-align"></h1>
+                <div class="card">
+                    <div class="card-image">
+                        <img src="https://media.giphy.com/media/QhCAwDXZ0BltK/giphy.gif"
+                             class="center-align">
+                    </div>
+                    <div class="card-stacked">
+                        <div class="card-content"></div>
+                        <div class="card-action">
+                            <a class="waves-effect waves-teal btn-flat btn-large"
+                               th:href="@{/profile/${ghUser.login}}"
+                               th:text="#{not-found.back.button.label}"
+                            ></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section th:unless="${gist == null}">
+    <div class="container">
+        <div class="row">
+            <div class="col s6">
+                <h2 th:text="${not #strings.isEmpty(gist.description)}? ${#strings.abbreviate(gist.description, 30)} : ${#strings.abbreviate(gist.files[0].filename, 30)}"></h2>
+                <div class="section">
+                    <span th:text="${gist.commentsUrl}"></span>
+                    <script th:src="${#strings.concat('https://gist.github.com/', login, '/', gist.ghId, '.js')}"></script>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+</body>
+</html>
