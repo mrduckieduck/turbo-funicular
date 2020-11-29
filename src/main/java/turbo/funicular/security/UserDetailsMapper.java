@@ -53,8 +53,6 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
                 .withJwtToken(accessToken)
                 .build();
 
-            final var githubClient = GithubApiClient.create(accessToken);
-
             responseEmitter.onNext(buildDetails(github, accessToken));
             responseEmitter.onComplete();
         } catch (IOException ex) {
