@@ -66,6 +66,19 @@ public class UiController {
             .orElse(HttpResponse.notFound());
     }
 
+    @Get("/profile/{login}/gist/{gistId}")
+    @View("gist_detail")
+    @Secured(IS_AUTHENTICATED)
+    public HttpResponse gist(final String login, final String gistId) {
+        return gitHubService.findGistById(gistId)
+            .filter(gist -> gist.getOwner().equals(login))
+            .map(foundGist -> Map.of("gist", foundGist,
+                "username", login,
+                "topComments", gitHubService.topGistComments(gistId)))
+            .map(HttpResponse::ok)
+            .orElse(HttpResponse.notFound());
+    }
+
     protected Map<String, Object> model(Authentication authentication) {
         final var username = Optional.ofNullable(authentication)
             .map(Principal::getName)
