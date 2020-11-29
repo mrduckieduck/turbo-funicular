@@ -22,25 +22,35 @@ public class GitHubService {
     }
 
     public List<GistDto> findGistsByUser(final String login) {
-        log.info("Searching gists for username {}", login);
-        return GithubApiClient.create().findGistsByUser(login);
+        return createApiClientInstance()
+            .map(apiClient -> apiClient.findGistsByUser(login))
+            .orElse(List.of());
     }
 
     public Optional<User> findUserByLogin(final String login) {
-        return GithubApiClient.create().findUser(login);
+        return createApiClientInstance()
+            .flatMap(apiClient -> apiClient.findUser(login));
     }
 
     public Optional<GistDto> findGistById(final String ghId) {
-        return GithubApiClient.create().findGistById(ghId);
+        return createApiClientInstance()
+            .flatMap(apiClient -> apiClient.findGistById(ghId));
     }
 
     public List<GistComment> topGistComments(final String ghId) {
-        return GithubApiClient.create().topGistComments(ghId, 5);
+        return createApiClientInstance()
+            .map(apiClient -> apiClient.topGistComments(ghId, 5))
+            .orElse(List.of());
     }
 
     public Optional<GistComment> addCommentToGist(final String gistId, final String comment) {
+        return createApiClientInstance()
+            .flatMap(apiClient -> apiClient.addCommentToGist(gistId, comment));
+    }
+
+    private Optional<GithubApiClient> createApiClientInstance() {
         return securityService.getAuthentication()
             .map(authentication -> (String) authentication.getAttributes().get(OauthUserDetailsMapper.ACCESS_TOKEN_KEY))
-            .flatMap(accessToken -> GithubApiClient.create(accessToken).addCommentToGist(gistId, comment));
+            .map(GithubApiClient::create);
     }
 }

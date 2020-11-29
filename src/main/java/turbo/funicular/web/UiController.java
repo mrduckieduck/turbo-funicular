@@ -80,13 +80,6 @@ public class UiController {
             .orElse(HttpResponse.notFound());
     }
 
-    @Post("/profile/{login}/gist/{gistId}")
-    @Secured(IS_AUTHENTICATED)
-    public HttpResponse addCommentToGist(final String login, final String gistId, final Map<String, String> formBody) {
-
-        return HttpResponse.ok();
-    }
-
     protected Map<String, Object> model(Authentication authentication) {
         final var username = Optional.ofNullable(authentication)
             .map(Principal::getName)
