@@ -12,7 +12,6 @@ import turbo.funicular.web.GistContent;
 import turbo.funicular.web.GistDto;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
@@ -145,9 +144,10 @@ public class GithubApiClient {
         owner.setName(gistComment.getUser().getName());
         owner.setLogin(gistComment.getUser().getLogin());
         owner.setAvatarUrl(gistComment.getUser().getAvatarUrl());
+
         return GistComment.builder()
             .owner(owner)
-            .createdAt(LocalDate.ofInstant(gistComment.getCreatedAt().toInstant(), ZoneId.systemDefault()))
+            .createdAt(LocalDateTime.ofInstant(gistComment.getCreatedAt().toInstant(), ZoneId.systemDefault()))
             .body(gistComment.getBody())
             .build();
     }
