@@ -49,10 +49,13 @@ jobs:
             done
             echo Failed waiting for Postgress && exit 1
       - run:
+          name: Prepare Gradle Wrapper
+          command: ./gradlew -version
+      - run:
           name: Run tests
           environment:
             DATASOURCES_DEFAULT_URL: jdbc:postgresql://localhost:5432/funicular
-          command: gradle test jacocoTestReport
+          command: ./gradlew test jacocoTestReport
       - save_cache:
           paths:
             - ~/.gradle
@@ -76,8 +79,5 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13
       - run:
-          name: Generate OCI image
-          command: gradle jibDockerBuild
-      - run:
           name: Publish OCI image
-          command: gradle jib
+          command: ./gradlew jib
