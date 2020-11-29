@@ -53,12 +53,6 @@ jobs:
           environment:
             DATASOURCES_DEFAULT_URL: jdbc:postgresql://localhost:5432/funicular
           command: gradle test jacocoTestReport
-      - run:
-          name: Generate OCI image
-          command: gradle jibDockerBuild
-      - run:
-          name: Publish OCI image
-          command: gradle jib
       - save_cache:
           paths:
             - ~/.gradle
@@ -72,14 +66,18 @@ jobs:
           file: build/reports/jacoco/test/jacocoTestReport.xml
   publish-image:
     docker:
-      - image: circleci/buildpack-deps:stretch
-    environment:
-      IMAGE_NAME: docker.pkg.github.com/mrduckieduck/turbo-funicular/webapp:0.0.1
+      - image: circleci/openjdk:11-jdk
+    working_directory: ~/repo
+      environment:
+        JVM_OPTS: -Xmx3200m
+        TERM: dumb
+        GRADLE_OPTS: "-Dorg.gradle.workers.max=2"
     steps:
       - setup_remote_docker:
           version: 19.03.13
       - run:
-          name: Publish Docker Image to Docker Hub
-          command: |
-            echo "$DOCKERHUB_PASSWORD" | docker login https://docker.pkg.github.com -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker push "${IMAGE_NAME}"
+          name: Generate OCI image
+          command: gradle jibDockerBuild
+      - run:
+          name: Publish OCI image
+          command: gradle jib
