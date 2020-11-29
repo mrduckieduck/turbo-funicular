@@ -52,6 +52,14 @@ micronaut:
         http-method: GET
         access:
           - isAnonymous()
+      - pattern: /oauth/*
+        http-method: GET
+        access:
+          - isAnonymous()
+      - pattern: /oauth/*
+        http-method: POST
+        access:
+          - isAnonymous()
 ---
 micronaut.router.static-resources.static.paths:
   - classpath:/static
