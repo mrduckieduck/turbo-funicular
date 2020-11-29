@@ -1,13 +1,17 @@
 package turbo.funicular.web;
 
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.RequestAttribute;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.views.View;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import turbo.funicular.service.GitHubService;
 import turbo.funicular.service.UsersService;
 
@@ -22,8 +26,10 @@ import java.util.stream.Collectors;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
+import static java.lang.String.format;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class UiController {
@@ -73,10 +79,21 @@ public class UiController {
         return gitHubService.findGistById(gistId)
             .filter(gist -> gist.getOwner().equals(login))
             .map(foundGist -> Map.of("gist", foundGist,
+                "newComment", GistComment.builder().build(),
                 "username", login,
                 "topComments", gitHubService.topGistComments(gistId)))
             .map(HttpResponse::ok)
             .orElse(HttpResponse.notFound());
+    }
+
+    @Post(value = "/profile/{login}/gist/{gistId}/comment/new", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+    @Secured(IS_AUTHENTICATED)
+    public HttpResponse addComment(final String login,
+                                   final String gistId,
+                                   @RequestAttribute("body") final String comment) {
+        return gitHubService.addCommentToGist(gistId, comment)
+            .map(newComment -> HttpResponse.redirect(URI.create(format("/profile/%s/gist/%s", login, gistId))))
+            .orElse(HttpResponse.serverError());
     }
 
     protected Map<String, Object> model(Authentication authentication) {

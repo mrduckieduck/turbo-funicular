@@ -43,13 +43,15 @@
             <div class="col s6 m6">
                 <h4 th:text="#{gist.comments.label}"></h4>
                 <div class="section">
-                    <form class="col s12" action="#"
-                          method="post">
+                    <form class="col s12"
+                          method="post"
+                          th:action="@{/profile/{login}/gist/{gistId}/comment/new(login=${username},gistId=${gist.ghId})}"
+                          th:object="${newComment}">
                         <div class="row">
                             <div class="input-field col s12">
-                                <textarea id="textarea" class="materialize-textarea" th:field=""></textarea>
-                                <label for="textarea" th:text="#{gist.new.comment.label}"></label>
-                                <button class="btn waves-effect waves-light" type="submit" name="action"
+                                <textarea id="body" class="materialize-textarea" th:value="*{body}" name="body"></textarea>
+                                <label for="body" th:text="#{gist.new.comment.label}"></label>
+                                <button class="btn waves-effect waves-light" type="submit"
                                         th:text="#{gist.comment.btn.add}"></button>
                             </div>
                         </div>
@@ -59,10 +61,10 @@
                 <div class="section">
                     <ul class="collection" th:each="comment: ${topComments}">
                         <li class="collection-item avatar">
-                            <i class="material-icons circle">comment</i>
+                            <img th:src="@{${comment.owner.avatarUrl}}" alt="" class="circle responsive-img" src="">
                             <a class="title"
-                               th:href="@{/profile/{login}(login=${comment.login})}"
-                               th:text="${comment.login}"></a>
+                               th:href="@{/profile/{login}(login=${comment.owner.login})}"
+                               th:text="${#strings.isEmpty(comment.owner.name)}? ${comment.owner.login}: ${comment.owner.name}"></a>
                             <p th:text="${comment.body}"></p>
                             <span class="secondary-content badge"
                                   th:text="${comment.createdAt}"></span>
