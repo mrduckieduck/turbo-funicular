@@ -141,11 +141,14 @@ public class GithubApiClient {
     }
 
     private GistComment createGistComment(final Comment gistComment) {
+        final var owner = new User();
+        owner.setName(gistComment.getUser().getName());
+        owner.setLogin(gistComment.getUser().getLogin());
+        owner.setAvatarUrl(gistComment.getUser().getAvatarUrl());
         return GistComment.builder()
-            .login(gistComment.getUser().getLogin())
+            .owner(owner)
             .createdAt(LocalDate.ofInstant(gistComment.getCreatedAt().toInstant(), ZoneId.systemDefault()))
             .body(gistComment.getBody())
             .build();
     }
-
 }
