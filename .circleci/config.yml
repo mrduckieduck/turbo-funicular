@@ -81,8 +81,6 @@ jobs:
           keys:
             - v1-dependencies-{{ checksum "build.gradle" }}
             - v1-dependencies-
-      - setup_remote_docker:
-          version: 19.03.13
       - run:
           name: Publish OCI image
           command: ./gradlew jib
