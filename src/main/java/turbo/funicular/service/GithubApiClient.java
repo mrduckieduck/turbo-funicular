@@ -79,13 +79,10 @@ public class GithubApiClient {
         }
     }
 
-    public void deleteCommentFromGist(final long gistCommentId) {
-        try {
-            gistService.deleteComment(gistCommentId);
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            throw new RuntimeException(ex);
-        }
+    public Either<String, Void> deleteCommentFromGist(final long gistCommentId) {
+        return Try.run(() -> gistService.deleteComment(gistCommentId))
+            .onFailure(throwable -> log.error("Can not delete for user {}", gistCommentId, throwable))
+            .toEither(String.format("Can not delete for user %s", gistCommentId));
     }
 
     public List<GistComment> topGistComments(final String gistId, final int count) {
