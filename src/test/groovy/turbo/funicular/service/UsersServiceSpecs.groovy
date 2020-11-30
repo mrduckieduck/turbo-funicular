@@ -5,7 +5,6 @@ import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import spock.lang.Specification
 import turbo.funicular.entity.User
 import turbo.funicular.entity.UserRepository
-import turbo.funicular.service.exceptions.DuplicatedEntityException
 import turbo.funicular.web.UserCommand
 
 import javax.inject.Inject
@@ -30,7 +29,7 @@ class UsersServiceSpecs extends Specification {
                 .build()
             def user = usersService.addUser(userCommand)
         expect:
-            user.present
+            user.right
     }
 
     def "should validate the users' properties"() {
@@ -42,34 +41,34 @@ class UsersServiceSpecs extends Specification {
         when: 'send a command with no required values set'
             def userCommand = UserCommand.builder()
                 .build()
-            usersService.addUser(userCommand)
+            def user = usersService.addUser(userCommand)
+            def errors = user.getLeft()
         then: 'should get two violation errors'
-            validationException = thrown(ConstraintViolationException)
-            validationException.constraintViolations.size() == 2
+            errors.size() == 2
         when: 'send a empty login'
             userCommand = UserCommand.builder()
                 .login('')
                 .build()
-            usersService.addUser(userCommand)
+            user = usersService.addUser(userCommand)
+            errors = user.getLeft()
         then: 'should get two violation errors'
-            validationException = thrown(ConstraintViolationException)
-            validationException.constraintViolations.size() == 2
+            errors.size() == 2
         when: 'send a command with only the user name set'
             userCommand = UserCommand.builder()
                 .login("foo")
                 .build()
-            usersService.addUser(userCommand)
+            def user1 = usersService.addUser(userCommand)
+            errors = user1.getLeft()
         then: 'should get one violation error'
-            validationException = thrown(ConstraintViolationException)
-            validationException.constraintViolations.size() == 1
+            errors.size() == 1
         when: 'send a command with only the user id set'
             userCommand = UserCommand.builder()
                 .ghId(1)
                 .build()
-            usersService.addUser(userCommand)
+            def user2 = usersService.addUser(userCommand)
+            errors = user2.getLeft()
         then: 'should get one violation error'
-            validationException = thrown(ConstraintViolationException)
-            validationException.constraintViolations.size() == 1
+            errors.size() == 1
     }
 
     def 'should validate duplicated users on add operation'() {
@@ -84,11 +83,14 @@ class UsersServiceSpecs extends Specification {
         expect: 'to have only one user'
             userRepository.count() == userCount + 1
         when: 'trying to add again the same user, this time using the service'
-            usersService.addUser(userCommand)
-        then: 'The service should raise an exception to prevent adding a duplicated user'
-            def duplicatedEntityException = thrown(DuplicatedEntityException)
-            duplicatedEntityException.entityName == 'User'
-            duplicatedEntityException.duplicatedIdentifier == userCommand.getLogin() + ", " + userCommand.getGhId()
+            def either = usersService.addUser(userCommand)
+        then: 'The service should return an error to prevent adding a duplicated user'
+            either.isLeft()
+            def left = either.getLeft()
+            left.size() == 1
+            //def duplicatedEntityException = thrown(DuplicatedEntityException)
+            //duplicatedEntityException.entityName == 'User'
+            //duplicatedEntityException.duplicatedIdentifier == userCommand.getLogin() + ", " + userCommand.getGhId()
     }
 
     def 'should verify the functionality in the random user selection'() {

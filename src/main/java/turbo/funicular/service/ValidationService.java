@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.is;
@@ -38,13 +40,19 @@ public class ValidationService {
         return toValidate;
     }
 
-    public <T> Either<Set<ConstraintViolation<T>>, T> validateFoo(T toValidate) {
+    public <T> Either<List<String>, T> validateFoo(T toValidate) {
         final var violations = validator.validate(toValidate);
 
         return Match(violations.isEmpty()).of(
             Case($(is(true)), right(toValidate)),
-            Case($(is(false)), left(violations))
+            Case($(is(false)), left(toList(violations)))
         );
+    }
+
+    public <T> List<String> toList(Set<ConstraintViolation<T>> violations) {
+        return violations.stream()
+            .map(ConstraintViolation::getMessage)
+            .collect(Collectors.toList());
     }
 
 }
