@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,22 +22,6 @@ public class ValidationService {
     private final Validator validator;
     private final MessageSource messageSource;
     private final MessageSource.MessageContext messageContext;
-
-    public <T> T validate(T toValidate) {
-        return validate(toValidate, "validation.default.message");
-    }
-
-    public <T> T validate(T toValidate, String messageCode) {
-        Set<ConstraintViolation<T>> violations = validator.validate(toValidate);
-        if (!violations.isEmpty()) {
-            String message = messageSource
-                .getMessage(messageCode, messageContext)
-                .orElse("Validation error found.");
-            throw new ConstraintViolationException(message, violations);
-        }
-
-        return toValidate;
-    }
 
     public <T> Either<List<String>, T> validateFoo(T toValidate) {
         final var violations = validator.validate(toValidate);
