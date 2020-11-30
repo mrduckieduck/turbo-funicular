@@ -89,7 +89,7 @@ class GithubApiClientSpecs extends Specification {
             gistsService.getComments(gistId) >> List.of(comment)
             gistsService.createComment(_ as String, _ as String) >> comment
             gistsService.deleteComment(1l)
-            gistsService.deleteComment(Integer.MAX_VALUE) >> { throw new RuntimeException() }
+            gistsService.deleteComment(Integer.MAX_VALUE) >> { throw new IOException() }
             gistsService.getComments(_ as String) >> List.of(comment)
 
         when:
@@ -132,18 +132,17 @@ class GithubApiClientSpecs extends Specification {
             }
 
         when:
-            newComment
-                .ifPresent { githubApiClient.deleteCommentFromGist(it.id) }
+            def deleteResult = newComment.map { githubApiClient.deleteCommentFromGist(it.id) }
         then:
-            noExceptionThrown()
+            deleteResult.filter { it.isRight() }.present
         and:
             githubApiClient.topGistComments(gistId, 10).size() > 0
 
         when:
-            githubApiClient.deleteCommentFromGist(Integer.MAX_VALUE)
+            def withError = githubApiClient.deleteCommentFromGist(Integer.MAX_VALUE)
 
         then:
-            thrown(RuntimeException)
+            withError.isLeft()
 
     }
 
