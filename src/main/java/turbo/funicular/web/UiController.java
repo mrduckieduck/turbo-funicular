@@ -9,6 +9,10 @@ import io.micronaut.http.annotation.RequestAttribute;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.views.View;
+import io.vavr.Tuple;
+import io.vavr.collection.HashMap;
+import io.vavr.control.Either;
+import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -66,24 +70,24 @@ public class UiController {
     @View("profile")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse featuredUser(final String login) {
-        return usersService.findUser(login)
-            .map(user -> Map.of("ghUser", user, "gists", gitHubService.findGistsByUser(user.getLogin())))
+        return Option.ofOptional(usersService.findUser(login))
+            .map(user -> gitHubService.findGistsByUser(login)
+                .fold(errors -> Tuple.of("ghUser", user, "errors", errors), gists -> Tuple.of("ghUser", user, "gists", gists)))
+            .map(sequence -> HashMap.of(sequence._1, sequence._2, sequence._3, sequence._4))
             .map(HttpResponse::ok)
-            .orElse(HttpResponse.notFound());
+            .getOrElse(HttpResponse.notFound());
     }
 
     @Get("/profile/{login}/gist/{gistId}")
     @View("gist_detail")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse gist(final String login, final String gistId) {
-        return gitHubService.findGistById(gistId)
+        final var gistOrError = gitHubService.findGistById(gistId)
             .filter(gist -> gist.getOwner().equals(login))
-            .map(foundGist -> Map.of("gist", foundGist,
-                "newComment", GistComment.builder().build(),
-                "username", login,
-                "topComments", gitHubService.topGistComments(gistId)))
-            .map(HttpResponse::ok)
-            .orElse(HttpResponse.notFound());
+            .getOrElse(Either.left(List.of(String.format("Gist %s doesn't belong to the given user %s", gistId, login))))
+            .fold(errors -> Map.of("errors", errors, "username", login),
+                gist -> Map.of("gist", gist, "newComment", GistComment.builder().build(), "username", login, "topComments", gitHubService.topGistComments(gistId)));
+        return HttpResponse.ok(gistOrError);
     }
 
     @Post(value = "/profile/{login}/gist/{gistId}/comment/new", consumes = MediaType.APPLICATION_FORM_URLENCODED)

@@ -2,6 +2,8 @@ package turbo.funicular.service;
 
 import io.micronaut.security.oauth2.endpoint.token.response.OauthUserDetailsMapper;
 import io.micronaut.security.utils.SecurityService;
+import io.vavr.control.Either;
+import io.vavr.control.Option;
 import lombok.extern.slf4j.Slf4j;
 import turbo.funicular.entity.User;
 import turbo.funicular.web.GistComment;
@@ -21,10 +23,9 @@ public class GitHubService {
         this.securityService = securityService;
     }
 
-    public List<GistDto> findGistsByUser(final String login) {
-        return createApiClientInstance()
-            .map(apiClient -> apiClient.findGistsByUser(login))
-            .orElse(List.of());
+    public Either<List<String>, List<GistDto>> findGistsByUser(final String login) {
+        return getApiClientOrError()
+            .flatMap(apiClient -> apiClient.findGistsByUser(login));
     }
 
     public Optional<User> findUserByLogin(final String login) {
@@ -32,9 +33,8 @@ public class GitHubService {
             .flatMap(apiClient -> apiClient.findUser(login));
     }
 
-    public Optional<GistDto> findGistById(final String ghId) {
-        return createApiClientInstance()
-            .flatMap(apiClient -> apiClient.findGistById(ghId));
+    public Either<List<String>, GistDto> findGistById(final String ghId) {
+        return getApiClientOrError().flatMap(apiClient -> apiClient.findGistById(ghId));
     }
 
     public List<GistComment> topGistComments(final String ghId) {
@@ -50,6 +50,13 @@ public class GitHubService {
 
     private Optional<GithubApiClient> createApiClientInstance() {
         return securityService.getAuthentication()
+            .map(authentication -> (String) authentication.getAttributes().get(OauthUserDetailsMapper.ACCESS_TOKEN_KEY))
+            .map(GithubApiClient::create);
+    }
+
+    private Either<List<String>, GithubApiClient> getApiClientOrError() {
+        return Option.ofOptional(securityService.getAuthentication())
+            .toEither(List.of("This is very bad, authentication data is gone!!"))
             .map(authentication -> (String) authentication.getAttributes().get(OauthUserDetailsMapper.ACCESS_TOKEN_KEY))
             .map(GithubApiClient::create);
     }

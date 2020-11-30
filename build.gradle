@@ -64,6 +64,8 @@ dependencies {
     }
     implementation("com.google.guava:guava:30.0-jre")
 
+    implementation("io.vavr:vavr:0.10.3")
+
     testImplementation "org.codehaus.groovy:groovy:${ groovyVersion }", {
         version { strictly "${ groovyVersion }" }
     }
