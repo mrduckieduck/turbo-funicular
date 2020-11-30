@@ -13,12 +13,9 @@ import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiPredicate;
+import java.util.function.Function;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.is;
 import static io.vavr.control.Either.left;
-import static io.vavr.control.Either.right;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
@@ -29,11 +26,7 @@ public class UsersService {
     private final UserRepository userRepository;
     private final ValidationService validationService;
     private final GitHubService gitHubService;
-
-    private BiPredicate<UserCommand, UserRepository> exists =
-        (userCommand, repo) -> repo
-            .findUserWith(userCommand.getLogin(), userCommand.getGhId())
-            .isPresent();
+    private final UserValidator userValidator;
 
     public Either<List<String>, User> addUser(@NotNull UserCommand command) {
         final var userCommands1 = validationService.validateFoo(command);
@@ -41,21 +34,17 @@ public class UsersService {
             return left(userCommands1.getLeft());
         }
 
-        final var foosss = foosss(command);
+        final var foosss = validateUserExists(command);
 
         if (foosss.isLeft()) {
-            return left(foosss.getLeft());
+            return left(List.of("User already exists"));
         }
 
         return add(command);
     }
 
-    private Either<List<String>, UserCommand> foosss(UserCommand command) {
-        return Match(exists.test(command, userRepository))
-            .of(
-                Case($(is(false)), right(command)),
-                Case($(is(true)), left(List.of("User already exists")))
-            );
+    private Either<User, UserCommand> validateUserExists(UserCommand command) {
+        return userValidator.userDoesNotExists(command).toEither();
     }
 
     private Either<List<String>, User> add(UserCommand usercommand) {
@@ -83,11 +72,9 @@ public class UsersService {
     }
 
     public void addUserIfMissing(UserCommand userCommand) {
-        userRepository
-            .findUserWith(userCommand.getLogin(), userCommand.getGhId())
-            .ifPresentOrElse(
-                user -> log.info("User {} already on the database", user.getLogin()),
-                () -> add(userCommand));
+        userValidator
+            .userDoesNotExists(userCommand)
+            .map((Function<UserCommand, Object>) this::add);
     }
 
     public Optional<User> findUser(final String login) {
