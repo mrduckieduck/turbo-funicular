@@ -1,6 +1,9 @@
 package turbo.funicular.service
 
+import com.github.javafaker.Faker
 import org.eclipse.egit.github.core.Comment
+import org.eclipse.egit.github.core.Gist
+import org.eclipse.egit.github.core.GistFile
 import org.eclipse.egit.github.core.User
 import org.eclipse.egit.github.core.service.GistService
 import org.eclipse.egit.github.core.service.UserService
@@ -8,11 +11,32 @@ import spock.lang.Specification
 
 class GithubApiClientSpecs extends Specification {
 
+    def faker = new Faker()
+
     void 'Test github operations for user #login'() {
         given:
             def githubApiClient = GithubApiClient.create()
-        expect:
-            githubApiClient.findGistsByUser(login).every {
+
+        when:
+            def user = githubApiClient.findUser(login)
+
+        then: 'Check user info'
+            user.present
+            with(user.get()) {
+                it.login == login
+                it.avatarUrl.contains(ghId.toString())
+                it.name == expectedName
+                it.ghId
+                it.avatarUrl
+                it.publicGistsCount
+            }
+
+        when: 'Get all gists of a user'
+            def foundGists = githubApiClient.findGistsByUser(login)
+
+        then:
+            foundGists.isRight()
+            foundGists.get().every {
                 it.createdAt
                 it.updatedAt
                 it.ghId
@@ -22,20 +46,6 @@ class GithubApiClientSpecs extends Specification {
                     it.filename
                     it.size
                 }
-            }
-
-        when:
-            def user = githubApiClient.findUser(login)
-        then: 'Check user info'
-            user.present
-            with(user.get()) {
-                println(it)
-                it.login == login
-                it.avatarUrl.contains(ghId.toString())
-                it.name == expectedName
-                it.ghId
-                it.avatarUrl
-                it.publicGistsCount
             }
 
         where:
@@ -45,21 +55,51 @@ class GithubApiClientSpecs extends Specification {
     }
 
     void 'Test github operations for gists'() {
-        given:
-            def githubApiClient = GithubApiClient.create()
-            def gists = githubApiClient.findGistsByUser('mrduckieduck')
-            def gistId = gists[0].ghId
-        expect:
-            !gists.empty && gistId
+        given: 'Stubs, base objects'
+            def login = faker.name().username()
+            def gistsService = Stub(GistService)
+            def githubApiClient = new GithubApiClient(Stub(UserService), gistsService)
+            def gistId = faker.crypto().md5()
+        and: 'Stubs configuration for gists'
+            def file = faker.file()
+            def gistFile = Stub(GistFile) {
+                it.filename >> file.fileName()
+                it.size >> 10
+                it.rawUrl >> faker.internet().url()
+                it.content >> faker.dune().quote()
+            }
+            gistsService.getGist(gistId) >> Stub(Gist) {
+                it.id >> gistId
+                it.createdAt >> new Date()
+                it.updatedAt >> new Date()
+                it.description >> faker.dune().quote()
+                it.files >> Map.of(file.fileName(), gistFile)
+            }
+        and: 'Stubs configuration for comments'
+            def comment = Stub(Comment) {
+                it.id >> 1l
+                it.body >> faker.dune().quote()
+                it.createdAt >> new Date()
+                it.getUser() >> Stub(User) {
+                    it.login >> login
+                    it.avatarUrl >> faker.avatar().image()
+                    it.name >> faker.funnyName().name()
+                }
+            }
+            gistsService.getComments(gistId) >> List.of(comment)
+            gistsService.createComment(_ as String, _ as String) >> comment
+            gistsService.deleteComment(1l)
+            gistsService.deleteComment(Integer.MAX_VALUE) >> { throw new RuntimeException() }
+            gistsService.getComments(_ as String) >> List.of(comment)
 
         when:
             def gist = githubApiClient.findGistById(gistId)
         then:
-            gist.present
+            gist.isRight()
             verifyAll(gist.get()) {
+                it.ghId == gistId
                 it.createdAt
                 it.updatedAt
-                it.ghId
                 it.files.every {
                     it.content
                     it.rawUrl
@@ -69,48 +109,26 @@ class GithubApiClientSpecs extends Specification {
             }
 
         when:
-            def comments = githubApiClient.topGistComments(gistId, 10)
+            def comments = githubApiClient.topGistComments(gistId, 1)
 
         then:
             comments.every {
                 it.body
                 it.createdAt
-                it.owner.login
+                it.owner.login == login
             }
-
-    }
-
-    def 'Test gists comments'() {
-        given:
-            def gistsService = Stub(GistService)
-            def githubApiClient = new GithubApiClient(Stub(UserService), gistsService)
-            def gistId = 'fooo'
-
-        and:
-            gistsService.createComment(_ as String, _ as String) >> Stub(Comment) {
-                it.id >> 1l
-                it.body >> 'body'
-                it.createdAt >> new Date()
-                it.getUser() >> Stub(User) {
-                    it.login >> 'mrduckieduck'
-                    it.avatarUrl >> 'avatar-url'
-                    it.name >> 'name'
-                }
-            }
-            gistsService.deleteComment(1l)
-            gistsService.deleteComment(Integer.MAX_VALUE) >> { throw new RuntimeException() }
-            gistsService.getComments(_ as String) >> List.of(Stub(Comment))
 
         when:
-            def newComment = githubApiClient.addCommentToGist(gistId, 'Pretty comment!')
+            def newComment = githubApiClient.addCommentToGist(gistId, faker.dune().quote())
+
         then:
             newComment.present
             verifyAll(newComment.get()) {
-                it.body == 'body'
+                it.body
                 it.createdAt
-                it.owner.login == 'mrduckieduck'
-                it.owner.avatarUrl == 'avatar-url'
-                it.owner.name == 'name'
+                it.owner.login == login
+                it.owner.avatarUrl
+                it.owner.name
             }
 
         when:
@@ -126,6 +144,7 @@ class GithubApiClientSpecs extends Specification {
 
         then:
             thrown(RuntimeException)
+
     }
 
 }

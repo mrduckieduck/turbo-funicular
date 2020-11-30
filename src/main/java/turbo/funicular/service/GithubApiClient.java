@@ -1,5 +1,8 @@
 package turbo.funicular.service;
 
+import io.vavr.collection.Stream;
+import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Gist;
@@ -45,41 +48,25 @@ public class GithubApiClient {
     }
 
     public Optional<User> findUser(final String login) {
-        try {
-            final var ghUser = userService.getUser(login);
-            final var user = new User();
-            user.setName(ghUser.getName());
-            user.setGhId((long) ghUser.getId());
-            user.setLogin(ghUser.getLogin());
-            user.setBio(ghUser.getCompany());
-            user.setAvatarUrl(ghUser.getAvatarUrl());
-            user.setPublicGistsCount(ghUser.getPublicGists());
-            return Optional.of(user);
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            return Optional.empty();
-        }
+        return Try.ofCallable(() -> userService.getUser(login))
+            .map(this::mapUser)
+            .onFailure(throwable -> log.error("Error in getting the user {} from Github", login, throwable))
+            .toJavaOptional();//For now, in fact should be Either<String, User>
     }
 
-    public List<GistDto> findGistsByUser(final String login) {
-        try {
-            return gistService.getGists(login).stream()
-                .map(this::createGistDto)
-                .collect(Collectors.toList());
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            return List.of();
-        }
+    public Either<List<String>, List<GistDto>> findGistsByUser(final String login) {
+        return Try.of(() -> gistService.getGists(login))
+            .map(gists -> Stream.ofAll(gists).map(this::createGistDto))
+            .map(gists -> gists.collect(Collectors.toList()))
+            .onFailure(throwable -> log.error("Can not find gists for user {}", login, throwable))
+            .toEither(List.of(String.format("Can not get the gists for %s", login)));
     }
 
-    public Optional<GistDto> findGistById(final String ghId) {
-        try {
-            return Optional.ofNullable(gistService.getGist(ghId))
-                .map(this::createGistDto);
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            return Optional.empty();
-        }
+    public Either<List<String>, GistDto> findGistById(final String ghId) {
+        return Try.ofCallable(() -> gistService.getGist(ghId))
+            .map(this::createGistDto)
+            .onFailure(throwable -> log.error("Can not get gist {} from GH", ghId, throwable))
+            .toEither(List.of("Gist is either empty or invalid"));
     }
 
     public Optional<GistComment> addCommentToGist(final String gistId, final String comment) {
@@ -101,17 +88,14 @@ public class GithubApiClient {
         }
     }
 
-    public List<GistComment> topGistComments(final String gistId, final long count) {
-        try {
-            return gistService.getComments(gistId).stream()
-                .limit(count)
+    public List<GistComment> topGistComments(final String gistId, final int count) {
+        return Try.ofCallable(() -> gistService.getComments(gistId))
+            .map(comments -> Stream.ofAll(comments).take(count)
                 .sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
                 .map(this::createGistComment)
-                .collect(Collectors.toList());
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            return List.of();
-        }
+                .collect(Collectors.toList()))
+            .onFailure(throwable -> log.error("Can not get the comments from {} gist", gistId, throwable))
+            .getOrElse(List.of());
     }
 
     private GistDto createGistDto(final Gist gist) {
@@ -128,7 +112,9 @@ public class GithubApiClient {
     }
 
     private List<GistContent> createGistContent(final Gist gist) {
-        return gist.getFiles().values().stream()
+        return gist.getFiles()
+            .values()
+            .stream()
             .map(gistContent -> GistContent.builder()
                 .filename(gistContent.getFilename())
                 .size(gistContent.getSize())
@@ -150,5 +136,16 @@ public class GithubApiClient {
             .createdAt(LocalDateTime.ofInstant(gistComment.getCreatedAt().toInstant(), ZoneId.systemDefault()))
             .body(gistComment.getBody())
             .build();
+    }
+
+    private User mapUser(final org.eclipse.egit.github.core.User ghUser) {
+        final var user = new User();
+        user.setName(ghUser.getName());
+        user.setGhId((long) ghUser.getId());
+        user.setLogin(ghUser.getLogin());
+        user.setBio(ghUser.getCompany());
+        user.setAvatarUrl(ghUser.getAvatarUrl());
+        user.setPublicGistsCount(ghUser.getPublicGists());
+        return user;
     }
 }
