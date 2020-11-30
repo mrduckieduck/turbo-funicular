@@ -75,7 +75,7 @@ public class UsersService {
     public void addUserIfMissing(UserCommand userCommand) {
         userValidator
             .userDoesNotExists(userCommand)
-            .map((Function<UserCommand, Object>) this::add);
+            .peek(this::add);
     }
 
     public Optional<User> findUser(final String login) {
