@@ -44,22 +44,21 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
         return Flowable.create(emitter -> getUserDetails(tokenResponse, emitter), BackpressureStrategy.ERROR);
     }
 
-    private void getUserDetails(final TokenResponse tokenResponse,
-                                final Emitter<AuthenticationResponse> responseEmitter) {
+    protected void getUserDetails(final TokenResponse tokenResponse,
+                                  final Emitter<AuthenticationResponse> responseEmitter) {
         run(()
             -> handleToken(tokenResponse, responseEmitter))
-            .recover(IOException.class,
-                ex -> authenticationError(responseEmitter, ex))
+            .recover(throwable -> authenticationError(responseEmitter, throwable))
             .get();
     }
 
-    private Void authenticationError(Emitter<AuthenticationResponse> responseEmitter, IOException ex) {
+    protected Void authenticationError(Emitter<AuthenticationResponse> responseEmitter, Throwable ex) {
         log.error(ex.getMessage(), ex);
         responseEmitter.onError(new AuthenticationException(new AuthenticationFailed(ex.getMessage())));
         return null;
     }
 
-    private void handleToken(TokenResponse tokenResponse, Emitter<AuthenticationResponse> responseEmitter) throws IOException {
+    protected void handleToken(TokenResponse tokenResponse, Emitter<AuthenticationResponse> responseEmitter) throws IOException {
         final var accessToken = tokenResponse.getAccessToken();
         final var github = new GitHubBuilder()
             .withJwtToken(accessToken)
