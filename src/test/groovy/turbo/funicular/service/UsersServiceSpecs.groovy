@@ -88,9 +88,6 @@ class UsersServiceSpecs extends Specification {
             either.isLeft()
             def left = either.getLeft()
             left.size() == 1
-            //def duplicatedEntityException = thrown(DuplicatedEntityException)
-            //duplicatedEntityException.entityName == 'User'
-            //duplicatedEntityException.duplicatedIdentifier == userCommand.getLogin() + ", " + userCommand.getGhId()
     }
 
     def 'should verify the functionality in the random user selection'() {
