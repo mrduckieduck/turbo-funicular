@@ -1,9 +1,12 @@
 package turbo.funicular.security
 
 import com.github.javafaker.Faker
+import io.micronaut.security.authentication.AuthenticationException
+import io.micronaut.security.authentication.AuthenticationResponse
 import io.micronaut.security.event.LoginSuccessfulEvent
 import io.micronaut.security.oauth2.endpoint.token.response.TokenResponse
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
+import io.reactivex.Emitter
 import io.reactivex.Flowable
 import org.kohsuke.github.GHMyself
 import org.kohsuke.github.GitHub
@@ -28,7 +31,7 @@ class UserDetailsMapperSpecs extends Specification {
             Flowable.fromPublisher(responses)
                 .blockingFirst()
         then:
-            thrown(IllegalStateException)
+            thrown(AuthenticationException)
         when:
             def details = userDetailsMapper.createUserDetails(null)
             Flowable.fromPublisher(details)
@@ -51,10 +54,12 @@ class UserDetailsMapperSpecs extends Specification {
             github.getMyself() >> myself
             def accessToken = 'fooo'
             def details = userDetailsMapper.buildDetails(github, accessToken)
+            def mockEmitter = Mock(Emitter<AuthenticationResponse>)
         expect:
             details.getRoles() == UserDetailsMapper.ROLES
             def event = new LoginSuccessfulEvent(details)
             loginSuccessfulEventListener.onApplicationEvent(event)
+            userDetailsMapper.authenticationError(mockEmitter, new IOException("ss"))
     }
 
 }
