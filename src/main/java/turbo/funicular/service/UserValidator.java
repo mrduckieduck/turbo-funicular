@@ -21,9 +21,9 @@ public class UserValidator {
     private final UserRepository userRepository;
 
     public Validation<User, UserCommand> userDoesNotExists(UserCommand userCommand) {
-        final var userWith = userRepository.findUserWith(userCommand.getLogin(), userCommand.getGhId());
-        return userWith.
-            <Validation<User, UserCommand>>map(Validation::invalid)
+        return userRepository
+            .findUserWith(userCommand.getLogin(), userCommand.getGhId())
+            .<Validation<User, UserCommand>>map(Validation::invalid)
             .orElseGet(() -> Validation.valid(userCommand));
     }
 

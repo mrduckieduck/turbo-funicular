@@ -29,9 +29,10 @@ public class UsersService {
     private final UserValidator userValidator;
 
     public Either<List<String>, User> addUser(@NotNull UserCommand command) {
-        final var userCommands1 = validationService.validateFoo(command);
-        if (userCommands1.isLeft()) {
-            return left(userCommands1.getLeft());
+        final var userCommands1 = userValidator.validateFields(command);
+
+        if (userCommands1.isInvalid()) {
+            return left(userCommands1.getError());
         }
 
         final var foosss = validateUserExists(command);
