@@ -13,7 +13,6 @@ import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static io.vavr.control.Either.left;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
