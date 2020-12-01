@@ -8,7 +8,10 @@
     <div class="container">
         <div class="row">
             <div class="col s6">
-                <div class="section">
+                <div class="section" th:if="${errors}">
+                    <div class="card-panel red lighten-4" th:each="error: ${errors}" th:text="${error}"></div>
+                </div>
+                <div class="section" th:unless="${errors}">
                     <ul class="collection" th:each="gist: ${gists}">
                         <li class="collection-item avatar">
                             <a th:href="@{/profile/{login}/gist/{gistId}(gistId=${gist.ghId},login=${ghUser.login})}">
@@ -55,7 +58,7 @@
                             <a class="title"
                                th:href="@{/profile/{login}(login=${user.login})}"
                                th:text="${user.name}"
-                               ></a>
+                            ></a>
                             <p th:text="${user.bio}"></p>
                             <span class="badge secondary-content" data-badge-caption="public gists"
                                   th:text="${user.publicGistsCount}"></span>

@@ -4,32 +4,13 @@
     <title th:text="#{gist-detail.page.title}"></title>
 </head>
 <body>
-<section th:if="${gist == null}">
-    <div class="container">
+<section>
+    <div class="container" th:if="${errors}">
         <div class="row">
-            <div class="col s12">
-                <h1 th:text="#{not-found.page.title}" class="header center-align"></h1>
-                <div class="card">
-                    <div class="card-image">
-                        <img src="https://media.giphy.com/media/QhCAwDXZ0BltK/giphy.gif"
-                             class="center-align">
-                    </div>
-                    <div class="card-stacked">
-                        <div class="card-content"></div>
-                        <div class="card-action">
-                            <a class="waves-effect waves-teal btn-flat btn-large"
-                               th:href="@{/profile/${ghUser.login}}"
-                               th:text="#{not-found.back.button.label}"
-                            ></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="card-panel red lighten-4" th:each="error: ${errors}" th:text="${error}"></div>
         </div>
     </div>
-</section>
-<section th:unless="${gist == null}">
-    <div class="container">
+    <div class="container" th:unless="${errors}">
         <div class="row">
             <h3>
                 <a th:href="@{#string.concat('https://gist.github.com/', username, '/', gist.ghId)}"

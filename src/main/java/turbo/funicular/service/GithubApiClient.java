@@ -14,7 +14,6 @@ import turbo.funicular.web.GistComment;
 import turbo.funicular.web.GistContent;
 import turbo.funicular.web.GistDto;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
@@ -51,32 +50,31 @@ public class GithubApiClient {
         return Try.ofCallable(() -> userService.getUser(login))
             .map(this::mapUser)
             .onFailure(throwable -> log.error("Error in getting the user {} from Github", login, throwable))
-            .toJavaOptional();//For now, in fact should be Either<String, User>
+            .toJavaOptional();//For now, in fact could be Either<List<String>, User> to keep track of all the possible errors
     }
 
     public Either<List<String>, List<GistDto>> findGistsByUser(final String login) {
         return Try.of(() -> gistService.getGists(login))
-            .map(gists -> Stream.ofAll(gists).map(this::createGistDto))
-            .map(gists -> gists.collect(Collectors.toList()))
+            .map(gists -> Stream.ofAll(gists).map(this::createGistDto)
+                .collect(Collectors.toList()))
             .onFailure(throwable -> log.error("Can not find gists for user {}", login, throwable))
             .toEither(List.of(String.format("Can not get the gists for %s", login)));
     }
 
     public Either<List<String>, GistDto> findGistById(final String ghId) {
         return Try.ofCallable(() -> gistService.getGist(ghId))
+            .onFailure(throwable -> log.error("Can not get gist {} from GH", ghId, throwable))
             .map(this::createGistDto)
             .onFailure(throwable -> log.error("Can not get gist {} from GH", ghId, throwable))
-            .toEither(List.of("Gist is either empty or invalid"));
+            .toEither(List.of(String.format("Can not get the gist with id %s", ghId)));
     }
 
-    public Optional<GistComment> addCommentToGist(final String gistId, final String comment) {
-        try {
-            return Optional.ofNullable(gistService.createComment(gistId, comment))
-                .map(this::createGistComment);
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            return Optional.empty();
-        }
+    public Either<List<String>, GistComment> addCommentToGist(final String gistId, final String comment) {
+        return Try.ofCallable(() -> gistService.createComment(gistId, comment))
+            .onFailure(throwable -> log.error("Can not create a new comment for gist {}", gistId, throwable))
+            .map(this::createGistComment)
+            .map(gistComment -> Either.<List<String>, GistComment>right(gistComment))
+            .getOrElseGet(throwable -> Either.left(List.of(throwable.getMessage())));
     }
 
     public Either<String, Void> deleteCommentFromGist(final long gistCommentId) {
