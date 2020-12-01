@@ -71,11 +71,11 @@ public class UiController {
     @Secured(IS_AUTHENTICATED)
     public HttpResponse featuredUser(final String login) {
         return Option.ofOptional(usersService.findUser(login))
-            .map(user -> gitHubService.findGistsByUser(login)
+            .map(user -> gitHubService.findGistsByUser(user.getLogin())
                 .fold(errors -> Tuple.of("ghUser", user, "errors", errors), gists -> Tuple.of("ghUser", user, "gists", gists)))
-            .map(sequence -> HashMap.of(sequence._1, sequence._2, sequence._3, sequence._4))
+            .map(sequence -> HashMap.of(sequence._1, sequence._2, sequence._3, sequence._4).toJavaMap())
             .map(HttpResponse::ok)
-            .getOrElse(HttpResponse.notFound());
+            .getOrElse(() -> HttpResponse.notFound());
     }
 
     @Get("/profile/{login}/gist/{gistId}")
@@ -86,7 +86,10 @@ public class UiController {
             .filter(gist -> gist.getOwner().equals(login))
             .getOrElse(Either.left(List.of(String.format("Gist %s doesn't belong to the given user %s", gistId, login))))
             .fold(errors -> Map.of("errors", errors, "username", login),
-                gist -> Map.of("gist", gist, "newComment", GistComment.builder().build(), "username", login, "topComments", gitHubService.topGistComments(gistId)));
+                gist -> Map.of("gist", gist,
+                    "newComment", GistComment.builder().build(),
+                    "username", login,
+                    "topComments", gitHubService.topGistComments(gistId)));
         return HttpResponse.ok(gistOrError);
     }
 
@@ -97,7 +100,7 @@ public class UiController {
                                    @RequestAttribute("body") final String comment) {
         return gitHubService.addCommentToGist(gistId, comment)
             .map(newComment -> HttpResponse.redirect(URI.create(format("/profile/%s/gist/%s", login, gistId))))
-            .orElse(HttpResponse.serverError());
+            .getOrElseGet(errors -> HttpResponse.serverError(Map.of("errors", errors)));
     }
 
     protected Map<String, Object> model(Authentication authentication) {
@@ -119,14 +122,16 @@ public class UiController {
             .map(auth -> auth.getAttributes().get("ghUser"))
             .orElse(UserCommand.builder().login(username).build());
 
-        return Map.of(
+        final var gistsOrErrors = gitHubService.findGistsByUser(username)
+            .fold(errors -> Tuple.of("errors", errors), gists -> Tuple.of("gists", gists));
+
+        return HashMap.of(
             "isLoggedIn", Objects.nonNull(authentication),
             "username", username,
             "featuredUsers", users,
-            "ghUser", ghUser,
-            "gists", gitHubService.findGistsByUser(username),
-            "roles", roles
-        );
+            "roles", roles,
+            "ghUser", ghUser
+        ).put(gistsOrErrors).toJavaMap();
     }
 
 }

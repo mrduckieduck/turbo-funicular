@@ -43,8 +43,8 @@ public class GitHubService {
             .orElse(List.of());
     }
 
-    public Optional<GistComment> addCommentToGist(final String gistId, final String comment) {
-        return createApiClientInstance()
+    public Either<List<String>, GistComment> addCommentToGist(final String gistId, final String comment) {
+        return getApiClientOrError()
             .flatMap(apiClient -> apiClient.addCommentToGist(gistId, comment));
     }
 

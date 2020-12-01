@@ -56,11 +56,14 @@ class GithubApiClientSpecs extends Specification {
 
     void 'Test github operations for gists'() {
         given: 'Stubs, base objects'
+
             def login = faker.name().username()
             def gistsService = Stub(GistService)
             def githubApiClient = new GithubApiClient(Stub(UserService), gistsService)
             def gistId = faker.crypto().md5()
+
         and: 'Stubs configuration for gists'
+
             def file = faker.file()
             def gistFile = Stub(GistFile) {
                 it.filename >> file.fileName()
@@ -75,22 +78,6 @@ class GithubApiClientSpecs extends Specification {
                 it.description >> faker.dune().quote()
                 it.files >> Map.of(file.fileName(), gistFile)
             }
-        and: 'Stubs configuration for comments'
-            def comment = Stub(Comment) {
-                it.id >> 1l
-                it.body >> faker.dune().quote()
-                it.createdAt >> new Date()
-                it.getUser() >> Stub(User) {
-                    it.login >> login
-                    it.avatarUrl >> faker.avatar().image()
-                    it.name >> faker.funnyName().name()
-                }
-            }
-            gistsService.getComments(gistId) >> List.of(comment)
-            gistsService.createComment(_ as String, _ as String) >> comment
-            gistsService.deleteComment(1l)
-            gistsService.deleteComment(Integer.MAX_VALUE) >> { throw new IOException() }
-            gistsService.getComments(_ as String) >> List.of(comment)
 
         when:
             def gist = githubApiClient.findGistById(gistId)
@@ -118,11 +105,48 @@ class GithubApiClientSpecs extends Specification {
                 it.owner.login == login
             }
 
+    }
+
+    void 'Test github operations for gist comments'() {
+        given:
+            def login = faker.name().username()
+            def gistsService = Stub(GistService)
+            def githubApiClient = new GithubApiClient(Stub(UserService), gistsService)
+            def gistId = faker.crypto().md5()
+
+        and:
+            def comment = Stub(Comment) {
+                it.id >> 1l
+                it.body >> faker.dune().quote()
+                it.createdAt >> new Date()
+                it.getUser() >> Stub(User) {
+                    it.login >> login
+                    it.avatarUrl >> faker.avatar().image()
+                    it.name >> faker.funnyName().name()
+                }
+            }
+            gistsService.getComments(gistId) >> List.of(comment)
+            gistsService.createComment(_ as String, _ as String) >> comment
+            gistsService.createComment(_ as String, null) >> {
+                throw new IllegalArgumentException("Ugly exception that needs to be caught!! (create comment - no comment)")
+            }
+            gistsService.createComment(null, _ as String) >> {
+                throw new IllegalArgumentException("Ugly exception that needs to be caught!! (create comment - no gistId)")
+            }
+            gistsService.deleteComment(1l)
+            gistsService.deleteComment(Integer.MAX_VALUE) >> {
+                throw new IOException("Ugly exception that needs to be caught!! (delete comment)")
+            }
+            gistsService.getComments(_ as String) >> List.of(comment)
+
+        expect:
+            githubApiClient.topGistComments(gistId, 1).size() == 1
+
         when:
             def newComment = githubApiClient.addCommentToGist(gistId, faker.dune().quote())
 
         then:
-            newComment.present
+            newComment.isRight()
             verifyAll(newComment.get()) {
                 it.body
                 it.createdAt
@@ -132,18 +156,30 @@ class GithubApiClientSpecs extends Specification {
             }
 
         when:
-            def deleteResult = newComment.map { githubApiClient.deleteCommentFromGist(it.id) }
-        then:
-            deleteResult.filter { it.isRight() }.present
-        and:
-            githubApiClient.topGistComments(gistId, 10).size() > 0
-
-        when:
-            def withError = githubApiClient.deleteCommentFromGist(Integer.MAX_VALUE)
+            def withError = githubApiClient.addCommentToGist(gistId, null)
 
         then:
             withError.isLeft()
+            withError.getLeft().find { "Ugly exception that needs to be caught!! (create comment - no comment)" == it }
 
+        when:
+            withError = githubApiClient.addCommentToGist(null, faker.dune().quote())
+
+        then:
+            withError.isLeft()
+            withError.getLeft().find { "Ugly exception that needs to be caught!! (create comment - no gistId)" == it }
+
+        when:
+            def deleteResult = githubApiClient.deleteCommentFromGist(newComment.get().id)
+        then:
+            deleteResult.isRight()
+
+        when:
+            withError = githubApiClient.deleteCommentFromGist(Integer.MAX_VALUE)
+
+        then:
+            withError.isLeft()
+            withError.getLeft() == "Can not delete for user ${Integer.MAX_VALUE}"
     }
 
 }

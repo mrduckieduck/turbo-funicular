@@ -4,38 +4,16 @@
     <title th:text="#{home.page.title}"></title>
 </head>
 <body>
-<section th:if="${ghUser == null}">
-    <div class="container">
-        <div class="row">
-            <div class="col s12">
-                <h1 th:text="#{not-found.page.title}" class="header center-align"></h1>
-                <div class="card">
-                    <div class="card-image">
-                        <img src="https://media.giphy.com/media/QhCAwDXZ0BltK/giphy.gif"
-                             class="center-align">
-                    </div>
-                    <div class="card-stacked">
-                        <div class="card-content"></div>
-                        <div class="card-action">
-                            <a class="waves-effect waves-teal btn-flat btn-large"
-                               th:href="@{/home}"
-                               th:text="#{not-found.back.button.label}"
-                            ></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<section th:unless="${ghUser == null}">
+<section>
     <div class="container">
         <div class="row">
             <div class="col s6">
-                <div class="section">
+                <div class="section" th:if="${errors}">
+                    <div class="card-panel red lighten-4" th:each="error: ${errors}" th:text="${error}"></div>
+                </div>
+                <div class="section" th:unless="${errors}">
                     <ul class="collection" th:each="gist: ${gists}">
                         <li class="collection-item avatar">
-
                             <a th:href="@{/profile/{login}/gist/{gistId}(gistId=${gist.ghId},login=${ghUser.login})}">
                                 <i class="material-icons circle">code</i>
                             </a>
