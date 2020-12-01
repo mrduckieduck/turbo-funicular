@@ -14,12 +14,16 @@ import turbo.funicular.web.GistComment;
 import turbo.funicular.web.GistContent;
 import turbo.funicular.web.GistDto;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static io.vavr.API.*;
+import static io.vavr.Predicates.instanceOf;
 
 @Slf4j
 public class GithubApiClient {
@@ -65,7 +69,6 @@ public class GithubApiClient {
         return Try.ofCallable(() -> gistService.getGist(ghId))
             .onFailure(throwable -> log.error("Can not get gist {} from GH", ghId, throwable))
             .map(this::createGistDto)
-            .onFailure(throwable -> log.error("Can not get gist {} from GH", ghId, throwable))
             .toEither(List.of(String.format("Can not get the gist with id %s", ghId)));
     }
 
