@@ -86,7 +86,6 @@ dependencies {
     testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:2.49.1"
 
     implementation 'com.github.javafaker:javafaker:1.0.2'
-    implementation 'io.vavr:vavr:0.10.3'
 
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("org.postgresql:postgresql")
