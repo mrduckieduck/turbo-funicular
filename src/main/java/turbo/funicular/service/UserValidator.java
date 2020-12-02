@@ -29,7 +29,7 @@ public class UserValidator {
 
     public Validation<List<String>, UserCommand> validateFields(UserCommand userCommand) {
         return validationService
-            .validateFoo(userCommand);
+            .validate(userCommand);
     }
 
 }

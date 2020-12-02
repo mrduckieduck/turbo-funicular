@@ -20,7 +20,7 @@ import static io.vavr.control.Validation.valid;
 public class ValidationService {
     private final Validator validator;
 
-    public <T> Validation<List<String>, T> validateFoo(T toValidate) {
+    public <T> Validation<List<String>, T> validate(T toValidate) {
         final var violations = validator.validate(toValidate);
 
         return Match(violations.isEmpty()).of(
