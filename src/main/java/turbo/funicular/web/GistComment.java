@@ -1,17 +1,17 @@
 package turbo.funicular.web;
 
+import io.micronaut.core.annotation.Introspected;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import turbo.funicular.entity.User;
 
 import java.time.LocalDateTime;
 
-@RequiredArgsConstructor
-@ToString
 @Getter
+@RequiredArgsConstructor
 @Builder
+@Introspected
 public class GistComment {
 
     private final User owner;
