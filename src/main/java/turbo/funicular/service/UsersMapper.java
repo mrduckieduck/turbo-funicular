@@ -23,4 +23,12 @@ public interface UsersMapper {
     @Mapping(source = "id", target = "ghId")
     @Mapping(source = "publicGistCount", target = "publicGistsCount")
     UserCommand githubToCommand(GHUser user) throws IOException;
+
+
+    @Mapping(source = "company", target = "bio")
+    @Mapping(target = "lastUpdated", ignore = true)
+    @Mapping(source = "id", target = "ghId")
+    @Mapping(source = "publicGists", target = "publicGistsCount")
+    @Mapping(target = "publicProfile", ignore = true)
+    User githubToEntity(org.eclipse.egit.github.core.User user);
 }

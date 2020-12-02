@@ -5,25 +5,20 @@ import io.vavr.control.Either;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.egit.github.core.Comment;
-import org.eclipse.egit.github.core.Gist;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.GistService;
 import org.eclipse.egit.github.core.service.UserService;
 import turbo.funicular.entity.User;
 import turbo.funicular.web.GistComment;
-import turbo.funicular.web.GistContent;
 import turbo.funicular.web.GistDto;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
+import static turbo.funicular.service.GistMapper.GIST_MAPPER;
+import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
 public class GithubApiClient {
@@ -51,16 +46,16 @@ public class GithubApiClient {
     }
 
     public Optional<User> findUser(final String login) {
+        //For now, in fact could be Either<List<String>, User> to keep track of all the possible errors
         return Try.ofCallable(() -> userService.getUser(login))
-            .map(this::mapUser)
+            .map(USERS_MAPPER::githubToEntity)
             .onFailure(throwable -> log.error("Error in getting the user {} from Github", login, throwable))
-            .toJavaOptional();//For now, in fact could be Either<List<String>, User> to keep track of all the possible errors
+            .toJavaOptional();
     }
 
     public Either<List<String>, List<GistDto>> findGistsByUser(final String login) {
         return Try.of(() -> gistService.getGists(login))
-            .map(gists -> Stream.ofAll(gists).map(this::createGistDto)
-                .collect(Collectors.toList()))
+            .map(gists -> Stream.ofAll(gists).map(GIST_MAPPER::githubToGistDto).toJavaList())
             .onFailure(throwable -> log.error("Can not find gists for user {}", login, throwable))
             .toEither(List.of(String.format("Can not get the gists for %s", login)));
     }
@@ -68,14 +63,14 @@ public class GithubApiClient {
     public Either<List<String>, GistDto> findGistById(final String ghId) {
         return Try.ofCallable(() -> gistService.getGist(ghId))
             .onFailure(throwable -> log.error("Can not get gist {} from GH", ghId, throwable))
-            .map(this::createGistDto)
+            .map(GIST_MAPPER::githubToGistDto)
             .toEither(List.of(String.format("Can not get the gist with id %s", ghId)));
     }
 
     public Either<List<String>, GistComment> addCommentToGist(final String gistId, final String comment) {
         return Try.ofCallable(() -> gistService.createComment(gistId, comment))
             .onFailure(throwable -> log.error("Can not create a new comment for gist {}", gistId, throwable))
-            .map(this::createGistComment)
+            .map(GIST_MAPPER::githubToGistComment)
             .map(gistComment -> Either.<List<String>, GistComment>right(gistComment))
             .getOrElseGet(throwable -> Either.left(List.of(throwable.getMessage())));
     }
@@ -90,60 +85,10 @@ public class GithubApiClient {
         return Try.ofCallable(() -> gistService.getComments(gistId))
             .map(comments -> Stream.ofAll(comments).take(count)
                 .sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
-                .map(this::createGistComment)
+                .map(GIST_MAPPER::githubToGistComment)
                 .collect(Collectors.toList()))
             .onFailure(throwable -> log.error("Can not get the comments from {} gist", gistId, throwable))
             .getOrElse(List.of());
     }
 
-    private GistDto createGistDto(final Gist gist) {
-        return GistDto.builder()
-            .createdAt(LocalDateTime.ofInstant(gist.getCreatedAt().toInstant(), ZoneId.systemDefault()))
-            .updatedAt(LocalDateTime.ofInstant(gist.getUpdatedAt().toInstant(), ZoneId.systemDefault()))
-            .commentsCount(gist.getComments())
-            .description(gist.getDescription())
-            .ghId(gist.getId())
-            .publicGist(gist.isPublic())
-            .owner(gist.getUser().getLogin())
-            .files(createGistContent(gist))
-            .build();
-    }
-
-    private List<GistContent> createGistContent(final Gist gist) {
-        return gist.getFiles()
-            .values()
-            .stream()
-            .map(gistContent -> GistContent.builder()
-                .filename(gistContent.getFilename())
-                .size(gistContent.getSize())
-                .rawUrl(gistContent.getRawUrl())
-                .content(gistContent.getContent())
-                .build()
-            )
-            .collect(Collectors.toList());
-    }
-
-    private GistComment createGistComment(final Comment gistComment) {
-        final var owner = new User();
-        owner.setName(gistComment.getUser().getName());
-        owner.setLogin(gistComment.getUser().getLogin());
-        owner.setAvatarUrl(gistComment.getUser().getAvatarUrl());
-
-        return GistComment.builder()
-            .owner(owner)
-            .createdAt(LocalDateTime.ofInstant(gistComment.getCreatedAt().toInstant(), ZoneId.systemDefault()))
-            .body(gistComment.getBody())
-            .build();
-    }
-
-    private User mapUser(final org.eclipse.egit.github.core.User ghUser) {
-        final var user = new User();
-        user.setName(ghUser.getName());
-        user.setGhId((long) ghUser.getId());
-        user.setLogin(ghUser.getLogin());
-        user.setBio(ghUser.getCompany());
-        user.setAvatarUrl(ghUser.getAvatarUrl());
-        user.setPublicGistsCount(ghUser.getPublicGists());
-        return user;
-    }
 }

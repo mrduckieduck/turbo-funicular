@@ -1,14 +1,16 @@
 package turbo.funicular.web;
 
 import io.micronaut.core.annotation.Introspected;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Builder
+@RequiredArgsConstructor
 @Introspected
 public class GistDto {
     private final Integer commentsCount;
