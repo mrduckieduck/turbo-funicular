@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@RequiredArgsConstructor
+@Builder
 @Introspected
 public class GistDto {
     private final Integer commentsCount;
