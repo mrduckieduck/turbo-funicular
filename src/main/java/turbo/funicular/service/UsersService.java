@@ -44,7 +44,9 @@ public class UsersService {
     }
 
     private Either<User, UserCommand> validateUserExists(UserCommand command) {
-        return userValidator.userDoesNotExists(command).toEither();
+        return userValidator
+            .userDoesNotExists(command)
+            .toEither();
     }
 
     private Either<List<String>, User> add(UserCommand usercommand) {
@@ -79,11 +81,14 @@ public class UsersService {
     }
 
     public Optional<User> findUser(final String login) {
-        return userRepository.findByLogin(login)
-            .or(() -> {
-                Optional<User> userByLogin = gitHubService.findUserByLogin(login);
-                userByLogin.ifPresent(userRepository::save);
-                return userByLogin;
-            });
+        return userRepository
+            .findByLogin(login)
+            .or(() -> findUserInGitHubAddIfFound(login));
+    }
+
+    private Optional<User> findUserInGitHubAddIfFound(String login) {
+        return gitHubService
+            .findUserByLogin(login)
+            .map(userRepository::save);
     }
 }
