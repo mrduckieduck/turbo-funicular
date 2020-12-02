@@ -77,6 +77,11 @@ class GithubApiClientSpecs extends Specification {
                 it.updatedAt >> new Date()
                 it.description >> faker.dune().quote()
                 it.files >> Map.of(file.fileName(), gistFile)
+                it.comments >> faker.number().randomDigitNotZero()
+                it.public >> true
+                it.user >> Stub(User) {
+                    it.login >> faker.name().username()
+                }
             }
 
         when:
@@ -87,6 +92,10 @@ class GithubApiClientSpecs extends Specification {
                 it.ghId == gistId
                 it.createdAt
                 it.updatedAt
+                it.commentsCount
+                it.description
+                it.publicGist
+                it.owner
                 it.files.every {
                     it.content
                     it.rawUrl
