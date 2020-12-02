@@ -182,12 +182,4 @@ class GithubApiClientSpecs extends Specification {
             withError.getLeft() == "Can not delete for user ${Integer.MAX_VALUE}"
     }
 
-    void "Test"() {
-        when:
-            def error = GithubApiClient.create().addCommentToGist(null, null)
-        then:
-            println(error.getLeft())
-            error.isLeft()
-    }
-
 }

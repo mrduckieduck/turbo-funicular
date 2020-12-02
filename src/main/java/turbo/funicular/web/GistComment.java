@@ -3,13 +3,11 @@ package turbo.funicular.web;
 import io.micronaut.core.annotation.Introspected;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import turbo.funicular.entity.User;
 
 import java.time.LocalDateTime;
 
 @Getter
-@RequiredArgsConstructor
 @Builder
 @Introspected
 public class GistComment {
