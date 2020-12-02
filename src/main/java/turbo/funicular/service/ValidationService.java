@@ -1,7 +1,7 @@
 package turbo.funicular.service;
 
 import io.micronaut.validation.validator.Validator;
-import io.vavr.control.Either;
+import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 
 import javax.inject.Singleton;
@@ -12,20 +12,20 @@ import java.util.stream.Collectors;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.is;
-import static io.vavr.control.Either.left;
-import static io.vavr.control.Either.right;
+import static io.vavr.control.Validation.invalid;
+import static io.vavr.control.Validation.valid;
 
 @Singleton
 @RequiredArgsConstructor
 public class ValidationService {
     private final Validator validator;
 
-    public <T> Either<List<String>, T> validateFoo(T toValidate) {
+    public <T> Validation<List<String>, T> validateFoo(T toValidate) {
         final var violations = validator.validate(toValidate);
 
         return Match(violations.isEmpty()).of(
-            Case($(is(true)), right(toValidate)),
-            Case($(is(false)), left(toList(violations)))
+            Case($(is(true)), valid(toValidate)),
+            Case($(is(false)), invalid(toList(violations)))
         );
     }
 
