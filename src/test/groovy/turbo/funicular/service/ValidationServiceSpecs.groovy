@@ -14,14 +14,14 @@ class ValidationServiceSpecs extends Specification {
     def foo() {
         when:
             def persono = new User()
-            def foo = validationService.validateFoo(persono)
+            def foo = validationService.validate(persono)
         then:
             foo.isInvalid()
             def left = foo.getError()
             left.size() == 2
         when:
             persono = new User(login: 'fdf', ghId: 1L)
-            foo = validationService.validateFoo(persono)
+            foo = validationService.validate(persono)
         then:
             foo.isValid()
             foo.get()
