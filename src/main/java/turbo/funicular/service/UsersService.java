@@ -50,7 +50,8 @@ public class UsersService {
     private Either<List<String>, User> add(UserCommand usercommand) {
         return validationService
             .validateFoo(USERS_MAPPER.commandToEntity(usercommand))
-            .map(this::saveNewUser);
+            .map(this::saveNewUser)
+            .toEither();
     }
 
     private User saveNewUser(User user) {
