@@ -33,19 +33,13 @@ public class UsersService {
             return left(userCommands1.getError());
         }
 
-        final var foosss = validateUserExists(command);
+        final var userExists = userValidator.userDoesNotExists(command);
 
-        if (foosss.isLeft()) {
-            return left(List.of("User already exists."));
+        if (userExists.isInvalid()) {
+            return left(userExists.getError());
         }
 
         return add(command);
-    }
-
-    private Either<User, UserCommand> validateUserExists(UserCommand command) {
-        return userValidator
-            .userDoesNotExists(command)
-            .toEither();
     }
 
     private Either<List<String>, User> add(UserCommand usercommand) {
