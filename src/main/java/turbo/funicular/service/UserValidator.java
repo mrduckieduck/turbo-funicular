@@ -1,9 +1,9 @@
 package turbo.funicular.service;
 
+import io.micronaut.context.MessageSource;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import turbo.funicular.entity.User;
 import turbo.funicular.entity.UserRepository;
 import turbo.funicular.web.UserCommand;
 
@@ -16,16 +16,23 @@ import java.util.List;
 public class UserValidator {
     private final ValidationService validationService;
     private final UserRepository userRepository;
+    private final MessageSource messageSource;
+    private final MessageSource.MessageContext messageContext;
 
-    public Validation<User, UserCommand> userDoesNotExists(UserCommand userCommand) {
+    public List<String> errorUsersExists() {
+        return List.of(messageSource
+            .getMessage("user.error.alreadyExists", messageContext)
+            .orElse(""));
+    }
+
+    public Validation<List<String>, UserCommand> userDoesNotExists(UserCommand userCommand) {
         return userRepository
             .findUserWith(userCommand.getLogin(), userCommand.getGhId())
-            .<Validation<User, UserCommand>>map(Validation::invalid)
+            .<Validation<List<String>, UserCommand>>map(user -> Validation.invalid(errorUsersExists()))
             .orElseGet(() -> Validation.valid(userCommand));
     }
 
     /**
-     *
      * @param user
      * @param <T>
      * @return
