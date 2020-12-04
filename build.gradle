@@ -39,7 +39,7 @@ dependencies {
     //THE ORDER MATTERS FOR THIS TREE MAPSTRUCT SHOULD BE BEFORE OF LOMBOK ALWAYS
     annotationProcessor "org.mapstruct:mapstruct-processor:${ mapstructVersion }"
     annotationProcessor("org.projectlombok:lombok:${ lombokVersion }")
-    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.1.0")
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
     //
     annotationProcessor("io.micronaut.security:micronaut-security-annotations")
 
