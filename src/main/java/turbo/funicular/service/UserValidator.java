@@ -7,7 +7,6 @@ import turbo.funicular.entity.User;
 import turbo.funicular.entity.UserRepository;
 import turbo.funicular.web.UserCommand;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
 
@@ -15,9 +14,7 @@ import java.util.List;
 @Singleton
 @RequiredArgsConstructor
 public class UserValidator {
-    @Inject
     private final ValidationService validationService;
-    @Inject
     private final UserRepository userRepository;
 
     public Validation<User, UserCommand> userDoesNotExists(UserCommand userCommand) {
@@ -27,9 +24,15 @@ public class UserValidator {
             .orElseGet(() -> Validation.valid(userCommand));
     }
 
-    public Validation<List<String>, UserCommand> validateFields(UserCommand userCommand) {
+    /**
+     *
+     * @param user
+     * @param <T>
+     * @return
+     */
+    public <T> Validation<List<String>, T> validateFields(T user) {
         return validationService
-            .validate(userCommand);
+            .validate(user);
     }
 
 }
