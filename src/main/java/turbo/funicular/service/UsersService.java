@@ -23,7 +23,6 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 @RequiredArgsConstructor
 public class UsersService {
     private final UserRepository userRepository;
-    private final ValidationService validationService;
     private final GitHubService gitHubService;
     private final UserValidator userValidator;
 
@@ -37,7 +36,7 @@ public class UsersService {
         final var foosss = validateUserExists(command);
 
         if (foosss.isLeft()) {
-            return left(List.of("User already exists"));
+            return left(List.of("User already exists."));
         }
 
         return add(command);
@@ -50,8 +49,8 @@ public class UsersService {
     }
 
     private Either<List<String>, User> add(UserCommand usercommand) {
-        return validationService
-            .validate(USERS_MAPPER.commandToEntity(usercommand))
+        return userValidator
+            .validateFields(USERS_MAPPER.commandToEntity(usercommand))
             .map(this::saveNewUser)
             .toEither();
     }
@@ -86,9 +85,15 @@ public class UsersService {
             .or(() -> findUserInGitHubAddIfFound(login));
     }
 
+    /**
+     * Searches in GitHub an user with the given login, if found it then will be added to the database.
+     *
+     * @param login The given login id
+     * @return A non empty if the user was found ion GitHub, empty otherwise.
+     */
     private Optional<User> findUserInGitHubAddIfFound(String login) {
         return gitHubService
             .findUserByLogin(login)
-            .map(userRepository::save);
+            .map(this::saveNewUser);
     }
 }

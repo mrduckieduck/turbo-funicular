@@ -20,6 +20,13 @@ import static io.vavr.control.Validation.valid;
 public class ValidationService {
     private final Validator validator;
 
+    /**
+     * Validates a Java class that uses Bean Validation annotations.
+     *
+     * @param toValidate The bean to validate
+     * @param <T> The bean generic type
+     * @return The validation result, either could be a error list or the bean itself
+     */
     public <T> Validation<List<String>, T> validate(T toValidate) {
         final var violations = validator.validate(toValidate);
 
@@ -29,6 +36,15 @@ public class ValidationService {
         );
     }
 
+    /**
+     * Converts the bean violations constraints to a "business" error representation.
+     *
+     * For simplicity, this example only generates a String
+     *
+     * @param violations The given violations
+     * @param <T> The bean generic type
+     * @return A List with the "business" error messages.
+     */
     public <T> List<String> toList(Set<ConstraintViolation<T>> violations) {
         return violations.stream()
             .map(ConstraintViolation::getMessage)
