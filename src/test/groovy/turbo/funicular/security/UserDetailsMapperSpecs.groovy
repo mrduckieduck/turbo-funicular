@@ -1,6 +1,7 @@
 package turbo.funicular.security
 
 import com.github.javafaker.Faker
+import io.micronaut.security.authentication.AuthenticationException
 import io.micronaut.security.event.LoginSuccessfulEvent
 import io.micronaut.security.oauth2.endpoint.token.response.TokenResponse
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
@@ -28,7 +29,7 @@ class UserDetailsMapperSpecs extends Specification {
             Flowable.fromPublisher(responses)
                 .blockingFirst()
         then:
-            thrown(IllegalStateException)
+            thrown(AuthenticationException)
         when:
             def details = userDetailsMapper.createUserDetails(null)
             Flowable.fromPublisher(details)
