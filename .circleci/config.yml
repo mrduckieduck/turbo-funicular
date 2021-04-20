@@ -19,7 +19,7 @@ jobs:
   build:
     #paralellism: 2
     docker:
-      - image: cimg/openjdk:15.0.0
+      - image: cimg/openjdk:16.0.0
       - image: postgres:13.1-alpine
         environment:
           POSTGRES_USER: user
@@ -69,7 +69,7 @@ jobs:
           file: build/reports/jacoco/test/jacocoTestReport.xml
   publish-image:
     docker:
-      - image: cimg/openjdk:15.0.0
+      - image: cimg/openjdk:16.0.0
     working_directory: ~/repo
     environment:
       JVM_OPTS: -Xmx3200m
