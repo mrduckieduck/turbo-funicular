@@ -29,6 +29,15 @@ public class UsersService {
     public Either<List<String>, User> addUser(@NotNull UserCommand command) {
         final var userCommands1 = userValidator.validateFields(command);
 
+
+        final var userCommands = userCommands1
+            .map(userCommand -> userValidator.userDoesNotExists(userCommand).toEither())
+            .toEither()
+            .flatMap(userCommands2 -> userCommands2)
+            .map(this::add)
+            .flatMap(users -> users);
+        //.map(userCommand -> {})
+
         if (userCommands1.isInvalid()) {
             return left(userCommands1.getError());
         }
@@ -39,7 +48,8 @@ public class UsersService {
             return left(userExists.getError());
         }
 
-        return add(command);
+        //return add(command);
+        return userCommands;
     }
 
     private Either<List<String>, User> add(UserCommand usercommand) {
