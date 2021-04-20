@@ -1,11 +1,11 @@
 package turbo.funicular.web;
 
 import io.micronaut.core.annotation.Introspected;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
 @Builder
+@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Introspected
 public class GistContent {
     private final String filename;

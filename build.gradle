@@ -1,11 +1,11 @@
 plugins {
     id "groovy"
     id "com.github.johnrengelman.shadow" version "6.1.0"
-    id "io.micronaut.application" version '1.2.0'
+    id "io.micronaut.application" version '1.4.5'
     id "idea"
-    id "com.github.ben-manes.versions" version "0.36.0"
+    id "com.github.ben-manes.versions" version "0.38.0"
     id 'jacoco'
-    id 'com.google.cloud.tools.jib' version '2.6.0'
+    id 'com.google.cloud.tools.jib' version '3.0.0'
 }
 
 version "0.0.1"
@@ -36,8 +36,11 @@ micronaut {
 
 dependencies {
     annotationProcessor("io.micronaut.data:micronaut-data-processor:${ micronautDataVersion }")
-    annotationProcessor("org.projectlombok:lombok:${ lombokVersion }")
+    //THE ORDER MATTERS FOR THIS TREE MAPSTRUCT SHOULD BE BEFORE OF LOMBOK ALWAYS
     annotationProcessor "org.mapstruct:mapstruct-processor:${ mapstructVersion }"
+    annotationProcessor("org.projectlombok:lombok:${ lombokVersion }")
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+    //
     annotationProcessor("io.micronaut.security:micronaut-security-annotations")
 
     compileOnly("org.graalvm.nativeimage:svm")
@@ -54,7 +57,7 @@ dependencies {
         version { strictly "${ micronautJdbcHikari }" }
     }
     implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
-    implementation("org.kohsuke:github-api:1.117")
+    implementation("org.kohsuke:github-api:1.127")
     implementation("org.eclipse.mylyn.github:org.eclipse.egit.github.core:2.1.5")
 
     implementation("io.micronaut.security:micronaut-security-jwt")
@@ -62,7 +65,7 @@ dependencies {
     implementation "io.micronaut.views:micronaut-views-thymeleaf:${ micronautViewsThymeleaf }", {
         version { strictly "${ micronautViewsThymeleaf }" }
     }
-    implementation("com.google.guava:guava:30.0-jre")
+    implementation("com.google.guava:guava:30.1.1-jre")
 
     implementation("io.vavr:vavr:0.10.3")
 
@@ -81,7 +84,7 @@ dependencies {
     testImplementation "org.seleniumhq.selenium:htmlunit-driver:${ seleniumHtmlUnitDriverVersion }"
     testImplementation "org.seleniumhq.selenium:selenium-api:${ seleniumVersion }"
     testImplementation "org.seleniumhq.selenium:selenium-support:${ seleniumVersion }"
-    testRuntime "net.sourceforge.htmlunit:htmlunit:2.45.0"
+    testRuntime "net.sourceforge.htmlunit:htmlunit:2.49.1"
 
     implementation 'com.github.javafaker:javafaker:1.0.2'
 
