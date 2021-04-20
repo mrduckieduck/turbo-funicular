@@ -2,6 +2,7 @@ package turbo.funicular.service;
 
 import com.google.common.collect.Lists;
 import io.vavr.control.Either;
+import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import turbo.funicular.entity.User;
@@ -14,7 +15,6 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
 
-import static io.vavr.control.Either.left;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
@@ -27,29 +27,13 @@ public class UsersService {
     private final UserValidator userValidator;
 
     public Either<List<String>, User> addUser(@NotNull UserCommand command) {
-        final var userCommands1 = userValidator.validateFields(command);
-
-
-        final var userCommands = userCommands1
-            .map(userCommand -> userValidator.userDoesNotExists(userCommand).toEither())
+        return userValidator.validateFields(command)
+            .map(userValidator::userDoesNotExists)
             .toEither()
-            .flatMap(userCommands2 -> userCommands2)
+            .map(Validation::toEither)
+            .flatMap(userCommands -> userCommands)
             .map(this::add)
             .flatMap(users -> users);
-        //.map(userCommand -> {})
-
-        if (userCommands1.isInvalid()) {
-            return left(userCommands1.getError());
-        }
-
-        final var userExists = userValidator.userDoesNotExists(command);
-
-        if (userExists.isInvalid()) {
-            return left(userExists.getError());
-        }
-
-        //return add(command);
-        return userCommands;
     }
 
     private Either<List<String>, User> add(UserCommand usercommand) {
