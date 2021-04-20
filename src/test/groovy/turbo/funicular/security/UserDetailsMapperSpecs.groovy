@@ -41,7 +41,7 @@ class UserDetailsMapperSpecs extends Specification {
     }
 
     //For some reason, IDK this feature method fails randomly on JDK 11
-    @Ignore("it fails randonly")
+    @Ignore("it fails randomly")
     def 'should build the userDetails'() {
         given:
             def username = faker.name().username()
