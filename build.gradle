@@ -97,8 +97,8 @@ application {
 }
 
 java {
-    sourceCompatibility = JavaVersion.toVersion("15")
-    targetCompatibility = JavaVersion.toVersion("15")
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
 }
 
 test {
