@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static io.vavr.control.Try.run;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
@@ -43,20 +44,28 @@ public class UserDetailsMapper implements OauthUserDetailsMapper {
         return Flowable.create(emitter -> getUserDetails(tokenResponse, emitter), BackpressureStrategy.ERROR);
     }
 
-    private void getUserDetails(final TokenResponse tokenResponse,
-                                final Emitter<AuthenticationResponse> responseEmitter) {
-        try {
-            final var accessToken = tokenResponse.getAccessToken();
-            final var github = new GitHubBuilder()
-                .withJwtToken(accessToken)
-                .build();
+    protected void getUserDetails(final TokenResponse tokenResponse,
+                                  final Emitter<AuthenticationResponse> responseEmitter) {
+        run(()
+            -> handleToken(tokenResponse, responseEmitter))
+            .recover(throwable -> authenticationError(responseEmitter, throwable))
+            .get();
+    }
 
-            responseEmitter.onNext(buildDetails(github, accessToken));
-            responseEmitter.onComplete();
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            responseEmitter.onError(new AuthenticationException(new AuthenticationFailed(ex.getMessage())));
-        }
+    protected Void authenticationError(Emitter<AuthenticationResponse> responseEmitter, Throwable ex) {
+        log.error(ex.getMessage(), ex);
+        responseEmitter.onError(new AuthenticationException(new AuthenticationFailed(ex.getMessage())));
+        return null;
+    }
+
+    protected void handleToken(TokenResponse tokenResponse, Emitter<AuthenticationResponse> responseEmitter) throws IOException {
+        final var accessToken = tokenResponse.getAccessToken();
+        final var github = new GitHubBuilder()
+            .withJwtToken(accessToken)
+            .build();
+
+        responseEmitter.onNext(buildDetails(github, accessToken));
+        responseEmitter.onComplete();
     }
 
     @SneakyThrows

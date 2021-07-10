@@ -1,11 +1,12 @@
 package turbo.funicular.service;
 
 import com.google.common.collect.Lists;
+import io.vavr.control.Either;
+import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import turbo.funicular.entity.User;
 import turbo.funicular.entity.UserRepository;
-import turbo.funicular.service.exceptions.DuplicatedEntityException;
 import turbo.funicular.web.UserCommand;
 
 import javax.inject.Singleton;
@@ -13,7 +14,6 @@ import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
@@ -23,32 +23,33 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 @RequiredArgsConstructor
 public class UsersService {
     private final UserRepository userRepository;
-    private final ValidationService validationService;
     private final GitHubService gitHubService;
+    private final UserValidator userValidator;
 
-    public Optional<User> addUser(@NotNull UserCommand command) {
-        validationService.validate(command);
-
-        userRepository
-            .findUserWith(command.getLogin(), command.getGhId())
-            .ifPresent(user -> {
-                throw new DuplicatedEntityException("User", command.getLogin() + ", " + command.getGhId());
-            });
-
-        return add(command);
+    public Either<List<String>, User> addUser(@NotNull UserCommand command) {
+        return userValidator.validateFields(command)
+            .map(userValidator::userDoesNotExists)
+            .toEither()
+            .map(Validation::toEither)
+            .flatMap(userCommands -> userCommands)
+            .map(this::add)
+            .flatMap(users -> users);
     }
 
-    private Optional<User> add(UserCommand usercommand) {
-        return Stream.of(USERS_MAPPER.commandToEntity(usercommand))
-            .map(validationService::validate)
-            .peek(user -> {
-                // by default all profiles are public.
-                // If an user wants to run a private profile,
-                // should do it by itself
-                user.setPublicProfile(true);
-            })
-            .map(userRepository::save)
-            .findFirst();
+    private Either<List<String>, User> add(UserCommand usercommand) {
+        return userValidator
+            .validateFields(USERS_MAPPER.commandToEntity(usercommand))
+            .map(this::saveNewUser)
+            .toEither();
+    }
+
+    private User saveNewUser(User user) {
+        // by default all profiles are public.
+        // If an user wants to run a private profile,
+        // should do it by itself
+        user.setPublicProfile(true);
+
+        return userRepository.save(user);
     }
 
     public List<User> randomTop(Long count) {
@@ -61,19 +62,26 @@ public class UsersService {
     }
 
     public void addUserIfMissing(UserCommand userCommand) {
-        userRepository
-            .findUserWith(userCommand.getLogin(), userCommand.getGhId())
-            .ifPresentOrElse(
-                user -> log.info("User {} already on the database", user.getLogin()),
-                () -> add(userCommand));
+        userValidator
+            .userDoesNotExists(userCommand)
+            .peek(this::add);
     }
 
     public Optional<User> findUser(final String login) {
-        return userRepository.findByLogin(login)
-            .or(() -> {
-                Optional<User> userByLogin = gitHubService.findUserByLogin(login);
-                userByLogin.ifPresent(userRepository::save);
-                return userByLogin;
-            });
+        return userRepository
+            .findByLogin(login)
+            .or(() -> findUserInGitHubAddIfFound(login));
+    }
+
+    /**
+     * Searches in GitHub an user with the given login, if found it then will be added to the database.
+     *
+     * @param login The given login id
+     * @return A non empty if the user was found ion GitHub, empty otherwise.
+     */
+    private Optional<User> findUserInGitHubAddIfFound(String login) {
+        return gitHubService
+            .findUserByLogin(login)
+            .map(this::saveNewUser);
     }
 }
