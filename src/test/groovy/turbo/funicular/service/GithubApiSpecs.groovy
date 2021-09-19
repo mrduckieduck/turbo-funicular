@@ -9,19 +9,19 @@ import org.eclipse.egit.github.core.service.GistService
 import org.eclipse.egit.github.core.service.UserService
 import spock.lang.Specification
 
-class GithubApiClientSpecs extends Specification {
+class GithubApiSpecs extends Specification {
 
     def faker = new Faker()
 
     void 'Test github operations for user #login'() {
         given:
-            def githubApiClient = GithubApiClient.create()
+            def githubApiClient = DefaultGithubClient.create()
 
         when:
             def user = githubApiClient.findUser(login)
 
         then: 'Check user info'
-            user.present
+            user.right
             with(user.get()) {
                 it.login == login
                 it.avatarUrl.contains(ghId.toString())
@@ -59,7 +59,7 @@ class GithubApiClientSpecs extends Specification {
 
             def login = faker.name().username()
             def gistsService = Stub(GistService)
-            def githubApiClient = new GithubApiClient(Stub(UserService), gistsService)
+            def githubApiClient = new DefaultGithubClient(Stub(UserService), gistsService)
             def gistId = faker.crypto().md5()
 
         and: 'Stubs configuration for gists'
@@ -88,7 +88,7 @@ class GithubApiClientSpecs extends Specification {
             def gist = githubApiClient.findGistById(gistId)
         then:
             gist.isRight()
-            verifyAll(gist.get()) {
+            verifyAll(gist.) {
                 it.ghId == gistId
                 it.createdAt
                 it.updatedAt
@@ -120,7 +120,7 @@ class GithubApiClientSpecs extends Specification {
         given:
             def login = faker.name().username()
             def gistsService = Stub(GistService)
-            def githubApiClient = new GithubApiClient(Stub(UserService), gistsService)
+            def githubApiClient = new DefaultGithubClient(Stub(UserService), gistsService)
             def gistId = faker.crypto().md5()
 
         and:
@@ -149,7 +149,7 @@ class GithubApiClientSpecs extends Specification {
             gistsService.getComments(_ as String) >> List.of(comment)
 
         expect:
-            githubApiClient.topGistComments(gistId, 1).size() == 1
+            githubApiClient.topGistComments(gistId, 1).get().size() == 1
 
         when:
             def newComment = githubApiClient.addCommentToGist(gistId, faker.dune().quote())

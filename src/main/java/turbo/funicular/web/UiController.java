@@ -16,7 +16,7 @@ import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import turbo.funicular.service.GitHubService;
+import turbo.funicular.service.GitHubApiService;
 import turbo.funicular.service.UsersService;
 
 import javax.annotation.Nullable;
@@ -38,7 +38,7 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 @RequiredArgsConstructor
 public class UiController {
     private final UsersService usersService;
-    private final GitHubService gitHubService;
+    private final GitHubApiService gitHubService;
 
     @Get
     @View("index")

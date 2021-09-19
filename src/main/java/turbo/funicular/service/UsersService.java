@@ -23,7 +23,7 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 @RequiredArgsConstructor
 public class UsersService {
     private final UserRepository userRepository;
-    private final GitHubService gitHubService;
+    private final GitHubApiService gitHubService;
     private final UserValidator userValidator;
 
     public Either<List<String>, User> addUser(@NotNull UserCommand command) {

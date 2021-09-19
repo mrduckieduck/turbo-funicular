@@ -12,8 +12,10 @@ import turbo.funicular.web.GistComment;
 import turbo.funicular.web.GistContent;
 import turbo.funicular.web.GistDto;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Mapper(uses = {UsersMapper.class})
 public interface GistMapper {
@@ -27,12 +29,22 @@ public interface GistMapper {
     @Mapping(target = "files", qualifiedByName = "filesToListOfGistContent")
     GistDto githubToGistDto(Gist gist);
 
+    List<GistDto> githubToGistDto(List<Gist> gists);
+
     @Mapping(target = "mimeType", ignore = true)
     @Mapping(target = "language", ignore = true)
     GistContent githubToGistContent(GistFile gistFile);
 
     @Mapping(target = "owner", source = "user")
     GistComment githubToGistComment(Comment comment);
+
+    default List<GistComment> takeCommentsAndMap(final List<Comment> comments, final int count) {
+        return Stream.ofAll(comments)
+            .take(count)
+            .sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
+            .map(GIST_MAPPER::githubToGistComment)
+            .collect(Collectors.toList());
+    }
 
     @Named("filesToListOfGistContent")
     default List<GistContent> filesToGistContentList(Map<String, GistFile> gistFiles) {
