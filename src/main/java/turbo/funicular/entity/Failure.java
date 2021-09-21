@@ -25,6 +25,7 @@ public class Failure {
 
     @Builder.Default
     List<Detail> details = List.of();
+
     @Nonnull
     @Builder.Default
     Option<Throwable> cause = Option.none();
@@ -51,10 +52,6 @@ public class Failure {
         @Nonnull
         @Builder.Default
         String defaultMessage = "";
-
-        @Nonnull
-        @Builder.Default
-        SortedSet<Object> arguments = new TreeSet<>();
 
         public static I18nData instance = Failure.I18nData.builder().build();
     }

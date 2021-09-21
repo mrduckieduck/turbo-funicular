@@ -7,7 +7,7 @@ import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import org.kohsuke.github.GHUser
 import spock.lang.Specification
 import turbo.funicular.entity.User
-import turbo.funicular.service.GitHubApiService
+import turbo.funicular.service.GistsService
 import turbo.funicular.service.UsersService
 
 import javax.inject.Inject
@@ -18,7 +18,7 @@ class UiControllerSpecs extends Specification {
     UsersService usersService
 
     @Inject
-    GitHubApiService gitHubService
+    GistsService gitHubService
 
     def 'should test the model generation for auth user at home page'() {
         given:

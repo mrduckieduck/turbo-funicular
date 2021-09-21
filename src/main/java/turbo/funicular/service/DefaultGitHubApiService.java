@@ -28,7 +28,7 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
 @Singleton
-public class DefaultGitHubApiService implements GitHubApiService {
+public class DefaultGitHubApiService implements GistsService {
 
     private static final String PREFIX_FAILURE_CODE = "github.api.failure.%s";
     private final SecurityService securityService;
@@ -93,7 +93,8 @@ public class DefaultGitHubApiService implements GitHubApiService {
     private <T, V> Either<Failure, V> executeRequest(final CheckedFunction0<T> action,
                                                      final Function<T, V> onSuccess,
                                                      final Tuple2<String, String> failureInfo) {
-        return Try.of(action).toEither()
+        return Try.of(action)
+            .toEither()
             .map(onSuccess)
             //1. contains the code of the error and 2 contains the reason why could it failed
             .mapLeft(throwable -> Failure.of(throwable, PREFIX_FAILURE_CODE.formatted(failureInfo._1), failureInfo._2));
@@ -110,7 +111,7 @@ public class DefaultGitHubApiService implements GitHubApiService {
 
     private Either<Failure, GistService> createGistServiceClient() {
         return Option.ofOptional(securityService.getAuthentication())
-            .toEither(Failure.of("github.validation.authentication.empty",
+            .toEither(Failure.of("github.api.failure.authentication-empty",
                 "For some reason the authentication info is not present!"))
             .map(authentication -> (String) authentication.getAttributes().get(OauthUserDetailsMapper.ACCESS_TOKEN_KEY))
             .map(accessToken -> new GitHubClient().setOAuth2Token(accessToken))
@@ -119,7 +120,7 @@ public class DefaultGitHubApiService implements GitHubApiService {
 
     private Either<Failure, UserService> createUseServiceClient() {
         return Option.ofOptional(securityService.getAuthentication())
-            .toEither(Failure.of("github.validation.authentication.empty",
+            .toEither(Failure.of("github.api.failure.authentication-empty",
                 "For some reason the authentication info is not present!"))
             .map(authentication -> (String) authentication.getAttributes().get(OauthUserDetailsMapper.ACCESS_TOKEN_KEY))
             .map(accessToken -> new GitHubClient().setOAuth2Token(accessToken))

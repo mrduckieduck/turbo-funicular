@@ -2,9 +2,11 @@ package turbo.funicular.service;
 
 import com.google.common.collect.Lists;
 import io.vavr.control.Either;
+import io.vavr.control.Try;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import turbo.funicular.entity.Failure;
 import turbo.funicular.entity.User;
 import turbo.funicular.entity.UserRepository;
 import turbo.funicular.web.UserCommand;
@@ -13,8 +15,8 @@ import javax.inject.Singleton;
 import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Optional;
 
+import static turbo.funicular.service.UserValidator.PREFIX_FAILURE_CODE;
 import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
@@ -22,37 +24,39 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 @Transactional
 @RequiredArgsConstructor
 public class UsersService {
+
     private final UserRepository userRepository;
-    private final GitHubApiService gitHubService;
+    private final GistsService gistsService;
     private final UserValidator userValidator;
 
-    public Either<List<String>, User> addUser(@NotNull UserCommand command) {
+    public Either<Failure, User> addUser(@NotNull final UserCommand command) {
         return userValidator.validateFields(command)
-            .map(userValidator::userDoesNotExists)
+            .flatMap(userValidator::userDoesNotExists)
             .toEither()
-            .map(Validation::toEither)
-            .flatMap(userCommands -> userCommands)
             .map(this::add)
             .flatMap(users -> users);
     }
 
-    private Either<List<String>, User> add(UserCommand usercommand) {
-        return userValidator
-            .validateFields(USERS_MAPPER.commandToEntity(usercommand))
-            .map(this::saveNewUser)
-            .toEither();
+    private Either<Failure, User> add(UserCommand usercommand) {
+        return userValidator.validateFields(USERS_MAPPER.commandToEntity(usercommand))
+            .toEither()
+            .flatMap(this::saveNewUser);
     }
 
-    private User saveNewUser(User user) {
+    private Either<Failure, User> saveNewUser(final User user) {
         // by default all profiles are public.
         // If an user wants to run a private profile,
         // should do it by itself
-        user.setPublicProfile(true);
-
-        return userRepository.save(user);
+        return Try.of(() -> {
+                user.setPublicProfile(true);
+                return userRepository.save(user);
+            })
+            .toEither()
+            .mapLeft(throwable -> Failure.of(throwable, "users.failure.save",
+                "Error trying to save the user %s!".formatted(user)));
     }
 
-    public List<User> randomTop(Long count) {
+    public List<User> randomTop(final Long count) {
         long usersCount = userRepository.count();
         if (count >= usersCount) {
             // we don't have enough users, so return all of them...
@@ -61,27 +65,30 @@ public class UsersService {
         return userRepository.randomUsers(count);
     }
 
-    public void addUserIfMissing(UserCommand userCommand) {
+    public void addUserIfMissing(final UserCommand userCommand) {
         userValidator
             .userDoesNotExists(userCommand)
             .peek(this::add);
     }
 
-    public Optional<User> findUser(final String login) {
-        return userRepository
-            .findByLogin(login)
-            .or(() -> findUserInGitHubAddIfFound(login));
+    public Either<Failure, User> findUser(final String login) {
+        return Try.of(() -> userRepository.findByLogin(login))
+            .toEither()
+            .mapLeft(throwable -> Failure.of(throwable, "%s.find-user".formatted(PREFIX_FAILURE_CODE),
+                "Weird error when trying to get the user for login %s".formatted(login)))
+            .flatMap(user -> user.map(Either::<Failure, User>right)
+                .orElse(findUserInGithubAddIfFound(login)));
     }
 
     /**
      * Searches in GitHub an user with the given login, if found it then will be added to the database.
      *
      * @param login The given login id
-     * @return A non empty if the user was found ion GitHub, empty otherwise.
+     * @return A non empty if the user was found ion GitHub, a {@link Failure} instead
      */
-    private Optional<User> findUserInGitHubAddIfFound(String login) {
-        return gitHubService
-            .findUserByLogin(login)
-            .map(this::saveNewUser);
+    private Either<Failure, User> findUserInGithubAddIfFound(final String login) {
+        return gistsService.findUserByLogin(login)
+            .flatMap(this::saveNewUser);
     }
+
 }
