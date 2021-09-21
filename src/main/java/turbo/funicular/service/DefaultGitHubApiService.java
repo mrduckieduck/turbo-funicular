@@ -28,12 +28,12 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
 @Singleton
-public class DefaultGitHubService implements GitHubApiService {
+public class DefaultGitHubApiService implements GitHubApiService {
 
     private static final String PREFIX_FAILURE_CODE = "github.api.failure.%s";
     private final SecurityService securityService;
 
-    public DefaultGitHubService(final SecurityService securityService) {
+    public DefaultGitHubApiService(final SecurityService securityService) {
         this.securityService = securityService;
     }
 
