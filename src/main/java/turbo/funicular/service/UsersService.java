@@ -1,9 +1,7 @@
 package turbo.funicular.service;
 
-import com.google.common.collect.Lists;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import turbo.funicular.entity.Failure;
@@ -33,36 +31,14 @@ public class UsersService {
         return userValidator.validateFields(command)
             .flatMap(userValidator::userDoesNotExists)
             .toEither()
-            .map(this::add)
-            .flatMap(users -> users);
+            .flatMap(this::add);
     }
 
-    private Either<Failure, User> add(UserCommand usercommand) {
-        return userValidator.validateFields(USERS_MAPPER.commandToEntity(usercommand))
+    public Either<Failure, List<User>> randomTop(final long count) {
+        return Try.of(() -> userRepository.randomUsers(count))
             .toEither()
-            .flatMap(this::saveNewUser);
-    }
-
-    private Either<Failure, User> saveNewUser(final User user) {
-        // by default all profiles are public.
-        // If an user wants to run a private profile,
-        // should do it by itself
-        return Try.of(() -> {
-                user.setPublicProfile(true);
-                return userRepository.save(user);
-            })
-            .toEither()
-            .mapLeft(throwable -> Failure.of(throwable, "users.failure.save",
-                "Error trying to save the user %s!".formatted(user)));
-    }
-
-    public List<User> randomTop(final Long count) {
-        long usersCount = userRepository.count();
-        if (count >= usersCount) {
-            // we don't have enough users, so return all of them...
-            return Lists.newArrayList(userRepository.findAll());
-        }
-        return userRepository.randomUsers(count);
+            .mapLeft(throwable -> Failure.of(throwable, "%s.random-top".formatted(PREFIX_FAILURE_CODE),
+                "Got an error trying to get the top %s users!".formatted(count)));
     }
 
     public void addUserIfMissing(final UserCommand userCommand) {
@@ -80,15 +56,28 @@ public class UsersService {
                 .orElse(findUserInGithubAddIfFound(login)));
     }
 
-    /**
-     * Searches in GitHub an user with the given login, if found it then will be added to the database.
-     *
-     * @param login The given login id
-     * @return A non empty if the user was found ion GitHub, a {@link Failure} instead
-     */
     private Either<Failure, User> findUserInGithubAddIfFound(final String login) {
         return gistsService.findUserByLogin(login)
             .flatMap(this::saveNewUser);
+    }
+
+    private Either<Failure, User> add(UserCommand usercommand) {
+        return userValidator.validateFields(USERS_MAPPER.commandToEntity(usercommand))
+            .toEither()
+            .flatMap(this::saveNewUser);
+    }
+
+    private Either<Failure, User> saveNewUser(final User user) {
+        // by default all profiles are public.
+        // If an user wants to run a private profile,
+        // should do it by itself
+        return Try.of(() -> {
+                user.setPublicProfile(true);
+                return userRepository.save(user);
+            })
+            .toEither()
+            .mapLeft(throwable -> Failure.of(throwable, "%s.save".formatted(PREFIX_FAILURE_CODE),
+                "Error trying to save the user %s!".formatted(user)));
     }
 
 }
