@@ -16,7 +16,7 @@ import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import turbo.funicular.service.GistsService;
+import turbo.funicular.service.GithubService;
 import turbo.funicular.service.UsersService;
 
 import javax.annotation.Nullable;
@@ -38,7 +38,7 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 @RequiredArgsConstructor
 public class UiController {
     private final UsersService usersService;
-    private final GistsService gitHubService;
+    private final GithubService gitHubService;
 
     @Get
     @View("index")
@@ -70,19 +70,20 @@ public class UiController {
     @View("profile")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse featuredUser(final String login) {
-        return Option.ofOptional(usersService.findUser(login))
+        /*return Option.ofOptional(usersService.findUser(login))
             .map(user -> gitHubService.findGistsByUser(user.getLogin())
                 .fold(errors -> Tuple.of("ghUser", user, "errors", errors), gists -> Tuple.of("ghUser", user, "gists", gists)))
             .map(sequence -> HashMap.of(sequence._1, sequence._2, sequence._3, sequence._4).toJavaMap())
             .map(HttpResponse::ok)
-            .getOrElse(() -> HttpResponse.notFound());
+            .getOrElse(() -> HttpResponse.notFound());*/
+        return HttpResponse.notFound();
     }
 
     @Get("/profile/{login}/gist/{gistId}")
     @View("gist_detail")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse gist(final String login, final String gistId) {
-        final var gistOrError = gitHubService.findGistById(gistId)
+        /*final var gistOrError = gitHubService.findGistById(gistId)
             .filter(gist -> gist.getOwner().equals(login))
             .getOrElse(Either.left(List.of(String.format("Gist %s doesn't belong to the given user %s", gistId, login))))
             .fold(errors -> Map.of("errors", errors, "username", login),
@@ -90,7 +91,8 @@ public class UiController {
                     "newComment", GistComment.builder().build(),
                     "username", login,
                     "topComments", gitHubService.topGistComments(gistId)));
-        return HttpResponse.ok(gistOrError);
+        return HttpResponse.ok(gistOrError);*/
+        return HttpResponse.notFound();
     }
 
     @Post(value = "/profile/{login}/gist/{gistId}/comment/new", consumes = MediaType.APPLICATION_FORM_URLENCODED)
@@ -108,12 +110,12 @@ public class UiController {
             .map(Principal::getName)
             .orElse("");
 
-        final var users = usersService.randomTop(5L)
+        /*final var users = usersService.randomTop(5L)
             .stream()
             .filter(user -> !user.getLogin().equals(username))
             .map(USERS_MAPPER::entityToCommand)
             .collect(Collectors.toList());
-
+        */
         final var roles = Optional.ofNullable(authentication)
             .map(auth -> auth.getAttributes().get("roles"))
             .orElse(List.of());
@@ -128,7 +130,8 @@ public class UiController {
         return HashMap.of(
             "isLoggedIn", Objects.nonNull(authentication),
             "username", username,
-            "featuredUsers", users,
+            //"featuredUsers", users,
+            "featuredUsers", List.of(),
             "roles", roles,
             "ghUser", ghUser
         ).put(gistsOrErrors).toJavaMap();

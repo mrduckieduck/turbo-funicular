@@ -24,7 +24,7 @@ import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 public class UsersService {
 
     private final UserRepository userRepository;
-    private final GistsService gistsService;
+    private final GithubService gistsService;
     private final UserValidator userValidator;
 
     public Either<Failure, User> addUser(@NotNull final UserCommand command) {

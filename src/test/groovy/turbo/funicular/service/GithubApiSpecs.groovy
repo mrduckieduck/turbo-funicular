@@ -1,7 +1,7 @@
 package turbo.funicular.service
 
 import com.github.javafaker.Faker
-import org.eclipse.egit.github.core.Comment
+import io.vavr.control.Either
 import org.eclipse.egit.github.core.Gist
 import org.eclipse.egit.github.core.GistFile
 import org.eclipse.egit.github.core.User
@@ -11,24 +11,43 @@ import spock.lang.Specification
 
 class GithubApiSpecs extends Specification {
 
-    def faker = new Faker()
+    static final def faker = new Faker()
+
+    def userService = Mock(UserService)
+
+    def gistService = Mock(GistService)
+
+    GithubClientFactory githubClientFactory
+
+    def setup() {
+        githubClientFactory = Mock(GithubClientFactory) {
+            createUserService() >> Either.right(userService)
+            createGistService() >> Either.right(gistService)
+        }
+    }
 
     void 'Test github operations for user #login'() {
         given:
-            def githubApiClient = DefaultGithubClient.create()
+            def stubbedGithubUser = createGithubUser(login, expectedName)
+            def stubbedGistsForUser = createGistsForUser(login)
+        and:
+            1 * userService.getUser(login) >> stubbedGithubUser
+            1 * gistService.getGists(login) >> stubbedGistsForUser
+
+        and:
+            def githubApiClient = new GithubApiClient(githubClientFactory)
 
         when:
-            def user = githubApiClient.findUser(login)
+            def user = githubApiClient.findUserByLogin(login)
 
         then: 'Check user info'
             user.right
             with(user.get()) {
                 it.login == login
-                it.avatarUrl.contains(ghId.toString())
+                it.avatarUrl == stubbedGithubUser.avatarUrl
                 it.name == expectedName
-                it.ghId
-                it.avatarUrl
-                it.publicGistsCount
+                it.ghId?.intValue() == stubbedGithubUser.id
+                it.publicGistsCount == stubbedGithubUser.publicGists
             }
 
         when: 'Get all gists of a user'
@@ -53,7 +72,7 @@ class GithubApiSpecs extends Specification {
             'mrduckieduck' | 'Daniel Castillo'
             'domix'        | 'Domingo Suarez Torres'
     }
-
+    /*
     void 'Test github operations for gists'() {
         given: 'Stubs, base objects'
 
@@ -188,7 +207,37 @@ class GithubApiSpecs extends Specification {
 
         then:
             withError.isLeft()
-            withError.getLeft() == "Can not delete for user ${Integer.MAX_VALUE}"
+            withError.getLeft() == "Can not delete for user ${ Integer.MAX_VALUE }"
+    }
+    */
+
+    private static def createGithubUser(final String login, final String expectedName) {
+        new User(
+            id: faker.number().randomNumber(),
+            company: faker.company().name(),
+            avatarUrl: faker.internet().avatar(),
+            publicGists: faker.number().randomDigit(),
+            login: login,
+            name: expectedName
+        )
     }
 
+    private static def createGistsForUser(final String login) {
+        (1..5).collect {
+            new Gist(
+                comments: it,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                id: faker.internet().uuid(),
+                public: true,
+                user: new User(login: login),
+                files: Map.of("${faker.name().title()}", new GistFile(
+                    size: faker.number().randomDigitNotZero(),
+                    content: faker.dune().quote(),
+                    filename: faker.dune().character(),
+                    rawUrl: faker.internet().url()
+                ))
+            )
+        }
+    }
 }

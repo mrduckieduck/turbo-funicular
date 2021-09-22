@@ -8,7 +8,7 @@ import turbo.funicular.web.GistDto;
 
 import java.util.List;
 
-public interface GistsService {
+public interface GithubService {
 
     Either<Failure, List<GistDto>> findGistsByUser(String login);
 

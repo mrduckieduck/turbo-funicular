@@ -2,6 +2,7 @@ package turbo.funicular.entity;
 
 import io.vavr.control.Option;
 import lombok.Builder;
+import lombok.ToString;
 import lombok.Value;
 
 import javax.annotation.Nonnull;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+@ToString
 @Value
 @Builder
 public class Failure {
@@ -37,6 +39,7 @@ public class Failure {
         UNEXPECTED, VALIDATION, BUSINESS
     }
 
+    @ToString
     @Value
     @Builder
     public static class I18nData {
@@ -56,6 +59,7 @@ public class Failure {
         public static I18nData instance = Failure.I18nData.builder().build();
     }
 
+    @ToString
     @Value
     @Builder
     public static class Detail {
