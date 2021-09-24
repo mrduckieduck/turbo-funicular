@@ -68,8 +68,8 @@ datasources:
   default:
     url: jdbc:postgresql://localhost:5433/funicular
     driverClassName: org.postgresql.Driver
-    username: user
-    password: secret
+    username: admin
+    password: password
     dialect: POSTGRES
 
 flyway:

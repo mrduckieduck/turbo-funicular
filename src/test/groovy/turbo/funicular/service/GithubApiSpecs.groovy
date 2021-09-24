@@ -2,6 +2,7 @@ package turbo.funicular.service
 
 import com.github.javafaker.Faker
 import io.vavr.control.Either
+import org.eclipse.egit.github.core.Comment
 import org.eclipse.egit.github.core.Gist
 import org.eclipse.egit.github.core.GistFile
 import org.eclipse.egit.github.core.User
@@ -72,54 +73,36 @@ class GithubApiSpecs extends Specification {
             'mrduckieduck' | 'Daniel Castillo'
             'domix'        | 'Domingo Suarez Torres'
     }
-    /*
+
     void 'Test github operations for gists'() {
         given: 'Stubs, base objects'
-
             def login = faker.name().username()
-            def gistsService = Stub(GistService)
-            def githubApiClient = new DefaultGithubClient(Stub(UserService), gistsService)
-            def gistId = faker.crypto().md5()
+            def gistId = faker.internet().uuid()
+            def gistComment = createGistComment(login)
 
         and: 'Stubs configuration for gists'
+            1 * gistService.getGist(gistId) >> createGistForUser(login, gistId)
+            1 * gistService.getComments(gistId) >> [gistComment]
 
-            def file = faker.file()
-            def gistFile = Stub(GistFile) {
-                it.filename >> file.fileName()
-                it.size >> 10
-                it.rawUrl >> faker.internet().url()
-                it.content >> faker.dune().quote()
-            }
-            gistsService.getGist(gistId) >> Stub(Gist) {
-                it.id >> gistId
-                it.createdAt >> new Date()
-                it.updatedAt >> new Date()
-                it.description >> faker.dune().quote()
-                it.files >> Map.of(file.fileName(), gistFile)
-                it.comments >> faker.number().randomDigitNotZero()
-                it.public >> true
-                it.user >> Stub(User) {
-                    it.login >> faker.name().username()
-                }
-            }
+        and:
+            def githubApiClient = new GithubApiClient(githubClientFactory)
 
         when:
             def gist = githubApiClient.findGistById(gistId)
         then:
             gist.isRight()
-            verifyAll(gist.) {
-                it.ghId == gistId
-                it.createdAt
-                it.updatedAt
-                it.commentsCount
-                it.description
-                it.publicGist
-                it.owner
-                it.files.every {
-                    it.content
-                    it.rawUrl
-                    it.filename
-                    it.size
+            verifyAll(gist.get()) {
+                ghId == gistId
+                createdAt
+                updatedAt
+                commentsCount
+                publicGist
+                owner
+                files.every { file ->
+                    file.content
+                    file.rawUrl
+                    file.filename
+                    file.size
                 }
             }
 
@@ -127,10 +110,12 @@ class GithubApiSpecs extends Specification {
             def comments = githubApiClient.topGistComments(gistId, 1)
 
         then:
-            comments.every {
-                it.body
-                it.createdAt
-                it.owner.login == login
+            comments.isRight()
+            comments.get().every { comment ->
+                comment.id == gistComment.id
+                comment.body == gistComment.body
+                comment.createdAt
+                comment.owner.login == login
             }
 
     }
@@ -138,34 +123,19 @@ class GithubApiSpecs extends Specification {
     void 'Test github operations for gist comments'() {
         given:
             def login = faker.name().username()
-            def gistsService = Stub(GistService)
-            def githubApiClient = new DefaultGithubClient(Stub(UserService), gistsService)
-            def gistId = faker.crypto().md5()
+            def gistId = faker.internet().uuid()
+            def gistComment = createGistComment(login)
+            def noCommentException = new IllegalArgumentException('Ugly exception that needs to be caught!! (create comment - no comment)')
+            def noGithubIdException = new IllegalArgumentException('Ugly exception that needs to be caught!! (create comment - no gistId)')
+
+        and: 'Stubs configuration for gists comments'
+            1 * gistService.getComments(gistId) >> [gistComment]
+            1 * gistService.createComment(_ as String, _ as String) >> gistComment
+            1 * gistService.createComment(_ as String, null) >> { throw noCommentException }
+            1 * gistService.createComment(null, _ as String) >> { throw noGithubIdException }
 
         and:
-            def comment = Stub(Comment) {
-                it.id >> 1l
-                it.body >> faker.dune().quote()
-                it.createdAt >> new Date()
-                it.getUser() >> Stub(User) {
-                    it.login >> login
-                    it.avatarUrl >> faker.avatar().image()
-                    it.name >> faker.funnyName().name()
-                }
-            }
-            gistsService.getComments(gistId) >> List.of(comment)
-            gistsService.createComment(_ as String, _ as String) >> comment
-            gistsService.createComment(_ as String, null) >> {
-                throw new IllegalArgumentException("Ugly exception that needs to be caught!! (create comment - no comment)")
-            }
-            gistsService.createComment(null, _ as String) >> {
-                throw new IllegalArgumentException("Ugly exception that needs to be caught!! (create comment - no gistId)")
-            }
-            gistsService.deleteComment(1l)
-            gistsService.deleteComment(Integer.MAX_VALUE) >> {
-                throw new IOException("Ugly exception that needs to be caught!! (delete comment)")
-            }
-            gistsService.getComments(_ as String) >> List.of(comment)
+            def githubApiClient = new GithubApiClient(githubClientFactory)
 
         expect:
             githubApiClient.topGistComments(gistId, 1).get().size() == 1
@@ -188,28 +158,20 @@ class GithubApiSpecs extends Specification {
 
         then:
             withError.isLeft()
-            withError.getLeft().find { "Ugly exception that needs to be caught!! (create comment - no comment)" == it }
+            withError.getLeft().reason == "Can not create a new comment for gist $gistId"
+            withError.getLeft().code == 'github.api.failure.add-gist-comment'
+            withError.getLeft().cause.defined
 
         when:
             withError = githubApiClient.addCommentToGist(null, faker.dune().quote())
 
         then:
             withError.isLeft()
-            withError.getLeft().find { "Ugly exception that needs to be caught!! (create comment - no gistId)" == it }
+            withError.getLeft().reason == "Can not create a new comment for gist null"
+            withError.getLeft().code == 'github.api.failure.add-gist-comment'
+            withError.getLeft().cause.defined
 
-        when:
-            def deleteResult = githubApiClient.deleteCommentFromGist(newComment.get().id)
-        then:
-            deleteResult.isRight()
-
-        when:
-            withError = githubApiClient.deleteCommentFromGist(Integer.MAX_VALUE)
-
-        then:
-            withError.isLeft()
-            withError.getLeft() == "Can not delete for user ${ Integer.MAX_VALUE }"
     }
-    */
 
     private static def createGithubUser(final String login, final String expectedName) {
         new User(
@@ -222,22 +184,35 @@ class GithubApiSpecs extends Specification {
         )
     }
 
+    private static def createGistForUser(final String login, final String ghId = faker.internet().uuid()) {
+        new Gist(
+            comments: faker.number().randomDigitNotZero(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            id: ghId,
+            public: true,
+            user: new User(login: login),
+            files: Map.of("${ faker.name().title() }", new GistFile(
+                size: faker.number().randomDigitNotZero(),
+                content: faker.dune().quote(),
+                filename: faker.dune().character(),
+                rawUrl: faker.internet().url()
+            ))
+        )
+    }
+
+    private static def createGistComment(final String login) {
+        new Comment(
+            createdAt: new Date(),
+            body: faker.dune().quote(),
+            id: faker.number().randomNumber(),
+            user: new User(login: login, avatarUrl: faker.internet().avatar(), name: faker.dune().character())
+        )
+    }
+
     private static def createGistsForUser(final String login) {
         (1..5).collect {
-            new Gist(
-                comments: it,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                id: faker.internet().uuid(),
-                public: true,
-                user: new User(login: login),
-                files: Map.of("${faker.name().title()}", new GistFile(
-                    size: faker.number().randomDigitNotZero(),
-                    content: faker.dune().quote(),
-                    filename: faker.dune().character(),
-                    rawUrl: faker.internet().url()
-                ))
-            )
+            createGistForUser(login)
         }
     }
 }
