@@ -2,9 +2,8 @@ package turbo.funicular.service
 
 import com.github.javafaker.Faker
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
-import spock.lang.Ignore
 import spock.lang.Specification
-import turbo.funicular.entity.Failure
+
 import turbo.funicular.entity.User
 import turbo.funicular.entity.UserRepository
 import turbo.funicular.web.UserCommand
