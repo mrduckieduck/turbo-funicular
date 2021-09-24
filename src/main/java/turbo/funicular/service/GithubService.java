@@ -1,7 +1,7 @@
 package turbo.funicular.service;
 
 import io.vavr.control.Either;
-import turbo.funicular.entity.Failure;
+import dev.mrpato.failure.entity.Failure;
 import turbo.funicular.entity.User;
 import turbo.funicular.web.GistComment;
 import turbo.funicular.web.GistDto;

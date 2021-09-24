@@ -1,5 +1,6 @@
 package turbo.funicular.service;
 
+import dev.mrpato.failure.entity.Failure;
 import io.vavr.CheckedFunction0;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -9,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.egit.github.core.Comment;
 import org.eclipse.egit.github.core.Gist;
-import turbo.funicular.entity.Failure;
 import turbo.funicular.entity.User;
 import turbo.funicular.web.GistComment;
 import turbo.funicular.web.GistDto;

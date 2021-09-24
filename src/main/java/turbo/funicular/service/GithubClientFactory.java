@@ -7,7 +7,7 @@ import io.vavr.control.Option;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.GistService;
 import org.eclipse.egit.github.core.service.UserService;
-import turbo.funicular.entity.Failure;
+import dev.mrpato.failure.entity.Failure;
 
 import javax.inject.Singleton;
 import java.util.function.Function;

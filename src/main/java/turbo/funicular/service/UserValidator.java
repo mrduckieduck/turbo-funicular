@@ -4,7 +4,7 @@ import io.micronaut.context.MessageSource;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import turbo.funicular.entity.Failure;
+import dev.mrpato.failure.entity.Failure;
 import turbo.funicular.entity.UserRepository;
 import turbo.funicular.web.UserCommand;
 

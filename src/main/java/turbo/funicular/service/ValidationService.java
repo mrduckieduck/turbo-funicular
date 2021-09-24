@@ -5,7 +5,7 @@ import io.micronaut.validation.validator.Validator;
 import io.vavr.control.Validation;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import turbo.funicular.entity.Failure;
+import dev.mrpato.failure.entity.Failure;
 
 import javax.inject.Singleton;
 import javax.validation.ConstraintViolation;
