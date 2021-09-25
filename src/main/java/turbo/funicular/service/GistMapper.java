@@ -27,6 +27,7 @@ public interface GistMapper {
     @Mapping(target = "publicGist", source = "public")
     @Mapping(target = "owner", source = "user.login")
     @Mapping(target = "files", qualifiedByName = "filesToListOfGistContent")
+    @Mapping(target = "description", source = "description", defaultValue = "-")
     GistDto githubToGistDto(Gist gist);
 
     List<GistDto> githubToGistDto(List<Gist> gists);

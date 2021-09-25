@@ -1,5 +1,6 @@
 package turbo.funicular.web;
 
+import dev.mrpato.failure.entity.Failure;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -11,8 +12,6 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.views.View;
 import io.vavr.Tuple;
 import io.vavr.collection.HashMap;
-import io.vavr.control.Either;
-import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 import static java.lang.String.format;
-import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
 @Controller
@@ -70,29 +67,30 @@ public class UiController {
     @View("profile")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse featuredUser(final String login) {
-        /*return Option.ofOptional(usersService.findUser(login))
+        return usersService.findUser(login)
             .map(user -> gitHubService.findGistsByUser(user.getLogin())
                 .fold(errors -> Tuple.of("ghUser", user, "errors", errors), gists -> Tuple.of("ghUser", user, "gists", gists)))
             .map(sequence -> HashMap.of(sequence._1, sequence._2, sequence._3, sequence._4).toJavaMap())
             .map(HttpResponse::ok)
-            .getOrElse(() -> HttpResponse.notFound());*/
-        return HttpResponse.notFound();
+            .getOrElse(HttpResponse::notFound);
     }
 
     @Get("/profile/{login}/gist/{gistId}")
     @View("gist_detail")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse gist(final String login, final String gistId) {
-        /*final var gistOrError = gitHubService.findGistById(gistId)
-            .filter(gist -> gist.getOwner().equals(login))
-            .getOrElse(Either.left(List.of(String.format("Gist %s doesn't belong to the given user %s", gistId, login))))
-            .fold(errors -> Map.of("errors", errors, "username", login),
+        final var gistOrError = gitHubService.findGistById(gistId)
+            .filterOrElse(gist -> gist.getOwner().equals(login),
+                gist -> Failure.builder()
+                    .reason("The owner should be the same as the login!")
+                    .code("user.failure.wrong-owner")
+                    .build())
+            .fold(errors -> Map.of("errors", errors.getReason(), "username", login),
                 gist -> Map.of("gist", gist,
                     "newComment", GistComment.builder().build(),
                     "username", login,
-                    "topComments", gitHubService.topGistComments(gistId)));
-        return HttpResponse.ok(gistOrError);*/
-        return HttpResponse.notFound();
+                    "topComments", gitHubService.topGistComments(gistId, 5)));
+        return HttpResponse.ok(gistOrError);
     }
 
     @Post(value = "/profile/{login}/gist/{gistId}/comment/new", consumes = MediaType.APPLICATION_FORM_URLENCODED)
