@@ -1,6 +1,7 @@
 package turbo.funicular.service
 
 import com.github.javafaker.Faker
+import dev.mrpato.failure.entity.Failure
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import spock.lang.Specification
 
