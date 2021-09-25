@@ -47,12 +47,19 @@
                     <ul class="collection" th:each="comment: ${topComments.get()}">
                         <li class="collection-item avatar">
                             <a th:href="@{/profile/{login}(login=${comment.owner.login})}">
-                                <img th:src="@{${comment.owner.avatarUrl}}" alt="" class="circle responsive-img" src="">
+                                <img th:src="@{${comment.owner.avatarUrl}}"
+                                     alt=""
+                                     class="circle responsive-img"
+                                     src="">
                             </a>
-                            <a class="title" th:href="@{/profile/{login}(login=${comment.owner.login})}"
-                               th:text="${#strings.isEmpty(comment.owner.name)}? ${comment.owner.login}: ${comment.owner.name}"></a>
+                            <a class="title"
+                               th:href="@{/profile/{login}(login=${comment.owner.login})}"
+                               th:text="${#strings.isEmpty(comment.owner.name)}? ${comment.owner.login}: ${comment.owner.name}">
+                            </a>
                             <p th:text="${comment.body}"></p>
-                            <span class="secondary-content badge" th:text="${comment.createdAt}"></span>
+                            <span class="secondary-content badge"
+                                  th:text="${comment.createdAt}">
+                            </span>
                         </li>
                     </ul>
                 </div>
