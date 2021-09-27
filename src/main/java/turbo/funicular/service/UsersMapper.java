@@ -24,7 +24,6 @@ public interface UsersMapper {
     @Mapping(source = "publicGistCount", target = "publicGistsCount")
     UserCommand githubToCommand(GHUser user) throws IOException;
 
-
     @Mapping(source = "company", target = "bio")
     @Mapping(target = "lastUpdated", ignore = true)
     @Mapping(source = "id", target = "ghId")

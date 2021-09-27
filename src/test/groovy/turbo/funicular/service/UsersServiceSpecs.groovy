@@ -1,8 +1,10 @@
 package turbo.funicular.service
 
 import com.github.javafaker.Faker
+import dev.mrpato.failure.entity.Failure
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
 import spock.lang.Specification
+
 import turbo.funicular.entity.User
 import turbo.funicular.entity.UserRepository
 import turbo.funicular.web.UserCommand
@@ -44,7 +46,13 @@ class UsersServiceSpecs extends Specification {
             def user = usersService.addUser(userCommand)
             def errors = user.getLeft()
         then: 'should get two violation errors'
-            errors.size() == 2
+            errors.reason == 'Failed validations!'
+            errors.code == 'user.failure.constraints-violations'
+            errors.details.every {
+                it.codeMessage in ['user.failure.field.ghId', 'user.failure.field.login']
+                it.type in [Failure.ErrorType.VALIDATION]
+                it.path in ['ghId', 'login']
+            }
         when: 'send a empty login'
             userCommand = UserCommand.builder()
                 .login('')
@@ -52,7 +60,13 @@ class UsersServiceSpecs extends Specification {
             user = usersService.addUser(userCommand)
             errors = user.getLeft()
         then: 'should get two violation errors'
-            errors.size() == 2
+            errors.reason == 'Failed validations!'
+            errors.code == 'user.failure.constraints-violations'
+            errors.details.every {
+                it.codeMessage in ['user.failure.field.ghId', 'user.failure.field.login']
+                it.type in [Failure.ErrorType.VALIDATION]
+                it.path in ['ghId', 'login']
+            }
         when: 'send a command with only the user name set'
             userCommand = UserCommand.builder()
                 .login("foo")
@@ -60,7 +74,13 @@ class UsersServiceSpecs extends Specification {
             def user1 = usersService.addUser(userCommand)
             errors = user1.getLeft()
         then: 'should get one violation error'
-            errors.size() == 1
+            errors.reason == 'Failed validations!'
+            errors.code == 'user.failure.constraints-violations'
+            errors.details.every {
+                it.codeMessage in ['user.failure.field.ghId']
+                it.type in [Failure.ErrorType.VALIDATION]
+                it.path in ['ghId']
+            }
         when: 'send a command with only the user id set'
             userCommand = UserCommand.builder()
                 .ghId(1)
@@ -68,7 +88,13 @@ class UsersServiceSpecs extends Specification {
             def user2 = usersService.addUser(userCommand)
             errors = user2.getLeft()
         then: 'should get one violation error'
-            errors.size() == 1
+            errors.reason == 'Failed validations!'
+            errors.code == 'user.failure.constraints-violations'
+            errors.details.every {
+                it.codeMessage in ['user.failure.field.login']
+                it.type in [Failure.ErrorType.VALIDATION]
+                it.path in ['login']
+            }
     }
 
     def 'should validate duplicated users on add operation'() {
@@ -86,8 +112,10 @@ class UsersServiceSpecs extends Specification {
             def either = usersService.addUser(userCommand)
         then: 'The service should return an error to prevent adding a duplicated user'
             either.isLeft()
-            def left = either.getLeft()
-            left.size() == 1
+            with(either.getLeft()) {
+                code == 'user.failure.alreadyExists'
+                reason == 'User already exists'
+            }
     }
 
     def 'should verify the functionality in the random user selection'() {
@@ -99,11 +127,11 @@ class UsersServiceSpecs extends Specification {
         when: 'ask for 10 random users'
             def randomTop = usersService.randomTop(10)
         then: 'return only the 5 existing users'
-            randomTop.size() == 5 + userCount
+            randomTop.get().size() == 5 + userCount
         when: 'ask for 5 random users'
             randomTop = usersService.randomTop(5 + userCount)
         then: 'return only the 5 existing users'
-            randomTop.size() == 5 + userCount
+            randomTop.get().size() == 5 + userCount
         when: 'create another 15 users'
             (5..19).each { usersService.addUserIfMissing(fakeUser(it)) }
         then: 'verify we have 20 users'
@@ -113,10 +141,9 @@ class UsersServiceSpecs extends Specification {
             randomTop = usersService.randomTop(count)
         then: 'verify we got the requested random unique users'
             //we generate another list, because the service returns an immutable list.
-            def uniqueUsers = randomTop.stream()
+            def uniqueUsers = randomTop.get().stream()
                 .collect(Collectors.toList())
                 .unique { User u1, User u2 -> u1.getId() <=> u2.getId() }
-
             uniqueUsers.size() == count
     }
 
@@ -126,7 +153,7 @@ class UsersServiceSpecs extends Specification {
             def user = fakeUser(id)
             usersService.addUser(user)
         expect:
-            usersService.findUser(user.login).filter { it.ghId == id }.present
+            usersService.findUser(user.login).filter { it.ghId == id }.defined
     }
 
     static UserCommand fakeUser(Long id) {

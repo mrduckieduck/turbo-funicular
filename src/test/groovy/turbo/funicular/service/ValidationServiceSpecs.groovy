@@ -13,15 +13,15 @@ class ValidationServiceSpecs extends Specification {
 
     def foo() {
         when:
-            def persono = new User()
-            def foo = validationService.validate(persono)
+            def person = new User()
+            def foo = validationService.validate(person, UserValidator.PREFIX_FAILURE_CODE)
         then:
             foo.isInvalid()
             def left = foo.getError()
-            left.size() == 2
+            left.details.size() == 2
         when:
-            persono = new User(login: 'fdf', ghId: 1L)
-            foo = validationService.validate(persono)
+            person = new User(login: 'fdf', ghId: 1L)
+            foo = validationService.validate(person, UserValidator.PREFIX_FAILURE_CODE)
         then:
             foo.isValid()
             foo.get()

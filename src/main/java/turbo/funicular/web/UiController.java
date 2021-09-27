@@ -1,5 +1,6 @@
 package turbo.funicular.web;
 
+import dev.mrpato.failure.entity.Failure;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -11,12 +12,10 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.views.View;
 import io.vavr.Tuple;
 import io.vavr.collection.HashMap;
-import io.vavr.control.Either;
-import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import turbo.funicular.service.GitHubService;
+import turbo.funicular.service.GithubService;
 import turbo.funicular.service.UsersService;
 
 import javax.annotation.Nullable;
@@ -26,19 +25,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static io.micronaut.security.rules.SecurityRule.IS_ANONYMOUS;
 import static io.micronaut.security.rules.SecurityRule.IS_AUTHENTICATED;
 import static java.lang.String.format;
-import static turbo.funicular.service.UsersMapper.USERS_MAPPER;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class UiController {
     private final UsersService usersService;
-    private final GitHubService gitHubService;
+    private final GithubService gitHubService;
 
     @Get
     @View("index")
@@ -70,12 +67,12 @@ public class UiController {
     @View("profile")
     @Secured(IS_AUTHENTICATED)
     public HttpResponse featuredUser(final String login) {
-        return Option.ofOptional(usersService.findUser(login))
+        return usersService.findUser(login)
             .map(user -> gitHubService.findGistsByUser(user.getLogin())
                 .fold(errors -> Tuple.of("ghUser", user, "errors", errors), gists -> Tuple.of("ghUser", user, "gists", gists)))
             .map(sequence -> HashMap.of(sequence._1, sequence._2, sequence._3, sequence._4).toJavaMap())
             .map(HttpResponse::ok)
-            .getOrElse(() -> HttpResponse.notFound());
+            .getOrElse(HttpResponse::notFound);
     }
 
     @Get("/profile/{login}/gist/{gistId}")
@@ -83,13 +80,16 @@ public class UiController {
     @Secured(IS_AUTHENTICATED)
     public HttpResponse gist(final String login, final String gistId) {
         final var gistOrError = gitHubService.findGistById(gistId)
-            .filter(gist -> gist.getOwner().equals(login))
-            .getOrElse(Either.left(List.of(String.format("Gist %s doesn't belong to the given user %s", gistId, login))))
-            .fold(errors -> Map.of("errors", errors, "username", login),
+            .filterOrElse(gist -> gist.getOwner().equals(login),
+                gist -> Failure.builder()
+                    .reason("The owner should be the same as the login!")
+                    .code("user.failure.wrong-owner")
+                    .build())
+            .fold(errors -> Map.of("errors", errors.getReason(), "username", login),
                 gist -> Map.of("gist", gist,
                     "newComment", GistComment.builder().build(),
                     "username", login,
-                    "topComments", gitHubService.topGistComments(gistId)));
+                    "topComments", gitHubService.topGistComments(gistId, 5)));
         return HttpResponse.ok(gistOrError);
     }
 
@@ -108,12 +108,12 @@ public class UiController {
             .map(Principal::getName)
             .orElse("");
 
-        final var users = usersService.randomTop(5L)
+        /*final var users = usersService.randomTop(5L)
             .stream()
             .filter(user -> !user.getLogin().equals(username))
             .map(USERS_MAPPER::entityToCommand)
             .collect(Collectors.toList());
-
+        */
         final var roles = Optional.ofNullable(authentication)
             .map(auth -> auth.getAttributes().get("roles"))
             .orElse(List.of());
@@ -128,7 +128,8 @@ public class UiController {
         return HashMap.of(
             "isLoggedIn", Objects.nonNull(authentication),
             "username", username,
-            "featuredUsers", users,
+            //"featuredUsers", users,
+            "featuredUsers", List.of(),
             "roles", roles,
             "ghUser", ghUser
         ).put(gistsOrErrors).toJavaMap();

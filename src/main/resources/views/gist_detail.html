@@ -23,6 +23,9 @@
             </div>
             <div class="col s6 m6">
                 <h4 th:text="#{gist.comments.label}"></h4>
+                <div class="section" th:if="${topComments.isLeft()}">
+                    <div class="card-panel red lighten-4" th:text="${topComments.getLeft().getReason()}"></div>
+                </div>
                 <div class="section">
                     <form class="col s12"
                           method="post"
@@ -40,19 +43,23 @@
                     </form>
                 </div>
                 <div class="divider"></div>
-                <div class="section">
-                    <ul class="collection" th:each="comment: ${topComments}">
+                <div class="section" th:if="${topComments.isRight()}">
+                    <ul class="collection" th:each="comment: ${topComments.get()}">
                         <li class="collection-item avatar">
-
                             <a th:href="@{/profile/{login}(login=${comment.owner.login})}">
-                                <img th:src="@{${comment.owner.avatarUrl}}" alt="" class="circle responsive-img" src="">
+                                <img th:src="@{${comment.owner.avatarUrl}}"
+                                     alt=""
+                                     class="circle responsive-img"
+                                     src="">
                             </a>
                             <a class="title"
                                th:href="@{/profile/{login}(login=${comment.owner.login})}"
-                               th:text="${#strings.isEmpty(comment.owner.name)}? ${comment.owner.login}: ${comment.owner.name}"></a>
+                               th:text="${#strings.isEmpty(comment.owner.name)}? ${comment.owner.login}: ${comment.owner.name}">
+                            </a>
                             <p th:text="${comment.body}"></p>
                             <span class="secondary-content badge"
-                                  th:text="${comment.createdAt}"></span>
+                                  th:text="${comment.createdAt}">
+                            </span>
                         </li>
                     </ul>
                 </div>
