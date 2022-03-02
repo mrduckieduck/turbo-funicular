@@ -65,7 +65,7 @@ dependencies {
         version { strictly "${ micronautJdbcHikari }" }
     }
     implementation("io.micronaut.data:micronaut-data-jdbc:${ micronautDataVersion }")
-    implementation("org.kohsuke:github-api:1.301")
+    implementation("org.kohsuke:github-api:1.302")
     implementation("org.eclipse.mylyn.github:org.eclipse.egit.github.core:2.1.5")
 
     implementation("io.micronaut.security:micronaut-security-jwt")
