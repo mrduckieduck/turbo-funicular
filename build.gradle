@@ -73,7 +73,7 @@ dependencies {
     implementation "io.micronaut.views:micronaut-views-thymeleaf:${ micronautViewsThymeleaf }", {
         version { strictly "${ micronautViewsThymeleaf }" }
     }
-    implementation("com.google.guava:guava:31.0.1-jre")
+    implementation("com.google.guava:guava:31.1-jre")
 
     implementation("io.vavr:vavr:1.0.0-alpha-4")
 
